@@ -1,7 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <string name="hello">Hello World, OnlineOkeyClientActivity!</string>
+	<!-- App  -->
     <string name="app_name">OnlineOkeyClient</string>
-
+    
+	<!-- Login Screen  -->
+    <string name="loginscreen_username">User Name:</string>
+    <string name="loginscreen_password">Password:</string>
+    <string name="loginscreen_edittext_hint_username">example_user</string>
+    <string name="loginscreen_edittext_hint_password">Secret Password</string>
+    <string name="loginscreen_button_login">Login</string>
+    
+    <!-- Signup Screen  -->
+    <string name="signupscreen_username">User Name:</string>
+	<string name="signupscreen_password">Password:</string>
+	<string name="signupscreen_email">Email:</string>
+	<string name="signupscreen_password_confirmation">Confirm Password:</string>
+	<string name="signupscreen_edittext_hint_username">Examples: example_user, example1234</string>
+	<string name="signupscreen_edittext_hint_password">Password: Minimum of 6 characters</string>
+	<string name="signupscreen_edittext_hint_email">Email: user@example.com</string>
+	<string name="signupscreen_edittext_hint_password_confirmation">Password</string>
+	<string name="signupscreen_button_signup">Sign Up</string>
+	
 </resources>

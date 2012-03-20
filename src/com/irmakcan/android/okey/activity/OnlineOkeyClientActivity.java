@@ -1,4 +1,4 @@
-package com.irmakcan.android;
+package com.irmakcan.android.okey.activity;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;

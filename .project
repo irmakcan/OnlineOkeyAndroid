@@ -30,4 +30,11 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>httpcomponents-client-4.1.3_src</name>
+			<type>2</type>
+			<location>/home/irmak/java/httpcomponents-client-4.1.3/src</location>
+		</link>
+	</linkedResources>
 </projectDescription>

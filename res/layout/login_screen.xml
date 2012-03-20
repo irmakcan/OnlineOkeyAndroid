@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <include layout="@layout/brand_bar" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/loginscreen_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="12dp"
+        android:fadingEdgeLength="2dp" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <!-- Flash -->
+
+            <LinearLayout
+                android:id="@+id/loginscreen_layout_flash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:background="@drawable/border"
+                android:orientation="vertical"
+                android:visibility="gone" >
+            </LinearLayout>
+
+            <!-- Log In Form -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:orientation="vertical"
+                android:paddingTop="10dp" >
+
+                <!-- User Name -->
+
+                <TextView
+                    style="@style/LabelFont"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loginscreen_username" />
+
+                <EditText
+                    android:id="@+id/loginscreen_edittext_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:hint="@string/loginscreen_edittext_hint_username"
+                    android:lines="1"
+                    android:scrollHorizontally="true" />
+                <!-- Password -->
+
+                <TextView
+                    style="@style/LabelFont"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loginscreen_password" />
+
+                <EditText
+                    android:id="@+id/loginscreen_edittext_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:hint="@string/loginscreen_edittext_hint_password"
+                    android:inputType="textPassword"
+                    android:lines="1"
+                    android:scrollHorizontally="true" />
+
+                <Button
+                    android:id="@+id/loginscreen_button_login"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loginscreen_button_login" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
