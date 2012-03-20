@@ -8,6 +8,7 @@
     <string name="loginscreen_password">Password:</string>
     <string name="loginscreen_edittext_hint_username">example_user</string>
     <string name="loginscreen_edittext_hint_password">Secret Password</string>
+    <string name="loginscreen_checkbox_rememberme">Remember Me</string>
     <string name="loginscreen_button_login">Login</string>
     
     <!-- Signup Screen  -->

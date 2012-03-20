@@ -96,11 +96,8 @@ public class LoginAsyncTask extends AsyncTask<Void, Void, JSONObject>{
 			mActivity.flash(errorList);
 		}else{
 			Log.v("message", accessToken);
-			//Accesstoken TODO
-			//mActivity.fi TODO
+			mActivity.loginSuccess(accessToken);
 		}
-
-
 	}
 	// ===========================================================
 	// Methods

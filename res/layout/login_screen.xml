@@ -78,6 +78,11 @@
                     android:inputType="textPassword"
                     android:lines="1"
                     android:scrollHorizontally="true" />
+                
+				<!-- Remember Me -->
+				<CheckBox android:id="@+id/loginscreen_checkbox_rememberme" 
+				    style="@style/LabelFont"
+				    android:text="@string/loginscreen_checkbox_rememberme"/>
 
                 <Button
                     android:id="@+id/loginscreen_button_login"
