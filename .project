@@ -36,5 +36,10 @@
 			<type>2</type>
 			<location>/home/irmak/java/httpcomponents-client-4.1.3/src</location>
 		</link>
+		<link>
+			<name>weberknecht-read-only_src_main</name>
+			<type>2</type>
+			<location>/home/irmak/workspace/android_workspace/weberknecht-read-only/src/main</location>
+		</link>
 	</linkedResources>
 </projectDescription>

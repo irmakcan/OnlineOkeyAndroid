@@ -94,7 +94,7 @@ public class SignUpAsyncTask extends AsyncTask<Void, Void, JSONObject>{
 			}
 			mActivity.flash(errorList);
 		}else{
-			//mActivity.fi TODO
+			mActivity.signUpSuccess();
 		}
 		
 	}

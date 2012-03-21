@@ -2,20 +2,16 @@ package com.irmakcan.android.okey.activity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -81,6 +77,10 @@ public class SignUpClientActivity extends Activity{
 		}
 		this.mFlash.setVisibility(View.VISIBLE);
 		this.mScrollView.fullScroll(ScrollView.FOCUS_UP);
+	}
+	
+	public void signUpSuccess(){
+		this.finish();
 	}
 	
 	// ===========================================================
