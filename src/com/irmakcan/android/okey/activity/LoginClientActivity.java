@@ -1,16 +1,22 @@
 package com.irmakcan.android.okey.activity;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
@@ -23,12 +29,18 @@ import android.widget.TextView;
 
 import com.irmakcan.android.okey.R;
 import com.irmakcan.android.okey.http.task.LoginAsyncTask;
+import com.irmakcan.android.okey.websocket.WebSocketProvider;
+
+import de.roderick.weberknecht.WebSocket;
+import de.roderick.weberknecht.WebSocketEventHandler;
+import de.roderick.weberknecht.WebSocketMessage;
 
 public class LoginClientActivity extends Activity {
+	
 	// ===========================================================
 	// Constants
 	// ===========================================================
-
+	private static final String LOG_TAG = "LoginClientActivity";
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -37,6 +49,8 @@ public class LoginClientActivity extends Activity {
 	private ScrollView mScrollView;
 	private LinearLayout mFlash;
 	private CheckBox mCheckBox;
+	private String mCurrentUserName;
+	private ProgressDialog mProgressDialog;
 
 	// ===========================================================
 	// Constructors
@@ -63,6 +77,8 @@ public class LoginClientActivity extends Activity {
 		this.mCheckBox = (CheckBox)findViewById(R.id.loginscreen_checkbox_rememberme);
 		Button loginButton = (Button)findViewById(R.id.loginscreen_button_login);
 		loginButton.setOnClickListener(mLoginAction);
+		
+		
 	}
 	
 	@Override
@@ -111,20 +127,46 @@ public class LoginClientActivity extends Activity {
 		e.remove("checkbox");
 		e.commit();
 	}
-	
-	public void loginSuccess(String pAccessToken) {
+	private void showProgressDialog(){
+		this.mProgressDialog = ProgressDialog.show(this, "Connecting to the Okey Server", "Please Wait");
+	}
+	private void hideProgressDialog(){
+		this.mProgressDialog.dismiss();
+	}
+	public void loginSuccess(final String pAccessToken) {
 		// Save user infos if Remember me is checked
 		if(this.mCheckBox.isChecked()){
 			saveUserSettings();
 		}else{
 			deleteUserSettings();
 		}
-		// Launch new activity TODO
+		
+		// connect to the websocket server
+		
+		try {
+			showProgressDialog(); // TODO not showing up check
+			URI url = new URI("ws://192.168.1.6:8080/");
+			WebSocket ws = WebSocketProvider.getInstance().createWebSocketConnection(url);
+			ws.setEventHandler(mWebSocketEventHandler);
+			ws.connect();
+			JSONObject json = new JSONObject();
+			json.put("action", "authenticate").put("version", "0.0.0")
+					.put("username", this.mCurrentUserName).put("access_token", pAccessToken);
+			ws.send(json.toString()); // TODO authentication
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			Log.v(LOG_TAG, "Hide progress dialog");
+			hideProgressDialog();
+		}
+		
 	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
 	private OnClickListener mLoginAction = new OnClickListener() {
+
 		@Override
 		public void onClick(View v) {
 			String username = mUsernameText.getText().toString();
@@ -135,6 +177,7 @@ public class LoginClientActivity extends Activity {
 				errorList.add("Fields can't be blank");
 				flash(errorList);
 			}else{
+				LoginClientActivity.this.mCurrentUserName = username;
 				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 				nameValuePairs.add(new BasicNameValuePair("user[username]", username));
 				nameValuePairs.add(new BasicNameValuePair("user[password]", password));
@@ -144,6 +187,36 @@ public class LoginClientActivity extends Activity {
 				LoginAsyncTask task = new LoginAsyncTask(LoginClientActivity.this, url, nameValuePairs); // TODO
 				task.execute();
 			}
+		}
+	};
+	
+	private WebSocketEventHandler mWebSocketEventHandler = new WebSocketEventHandler() {
+		@Override
+		public void onOpen() {
+			Log.v(LOG_TAG, "WebSocket connected");
+		}
+		@Override
+		public void onMessage(WebSocketMessage message) {
+			Log.v(LOG_TAG, "Message received: " + message.getText());
+			try {
+				Log.v(LOG_TAG, message.getText());
+				final JSONObject json = new JSONObject(message.getText());
+				String status =	json.getString("status");
+				if(status.equals("success")){
+					Log.v(LOG_TAG, "auth success");
+					Intent i = new Intent(LoginClientActivity.this, OkeyLoungeActivity.class);
+					startActivity(i);
+				} else {
+					// TODO
+				}
+			} catch (JSONException e) {
+				// Messaging error TODO
+				e.printStackTrace();
+			}
+		}
+		@Override
+		public void onClose() {
+			Log.v(LOG_TAG, "WebSocket disconnected");
 		}
 	};
 

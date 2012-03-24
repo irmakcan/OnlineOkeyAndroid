@@ -20,6 +20,12 @@
             android:screenOrientation="landscape" >
         </activity>
         <activity
+            android:name=".activity.OkeyLoungeActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape" >
+        </activity>
+        
+        <activity
             android:name=".activity.MainMenuActivity"
             android:label="@string/app_name"
             android:screenOrientation="landscape" >
