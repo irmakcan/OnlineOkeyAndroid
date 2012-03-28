@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -26,7 +27,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.irmakcan.android.okey.R;
+import com.irmakcan.android.okey.model.GameInformation;
+import com.irmakcan.android.okey.model.Player;
+import com.irmakcan.android.okey.model.Position;
 import com.irmakcan.android.okey.model.Room;
+import com.irmakcan.android.okey.model.User;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
 import de.roderick.weberknecht.WebSocket;
@@ -46,10 +51,10 @@ public class OkeyLoungeActivity extends Activity{
 	// ===========================================================
 	
 	private Handler mHandler;
-
 	private TableLayout mRoomTableLayout;
-
 	private TextView mPlayerCountView;
+
+	private String mQueuedRoomName;
 	
 	// ===========================================================
 	// Constructors
@@ -58,7 +63,6 @@ public class OkeyLoungeActivity extends Activity{
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	
 	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
@@ -106,7 +110,20 @@ public class OkeyLoungeActivity extends Activity{
 	private void sendCreateRoomRequest(String pRoomName){
 		WebSocket webSocket = WebSocketProvider.getInstance().getWebSocket();
 		try {
+			this.mQueuedRoomName = pRoomName;
 			JSONObject json = new JSONObject().put("action", "create_room").put("room_name", pRoomName);
+			webSocket.send(json.toString());
+		} catch (Exception e) {
+			// TODO Handle
+			e.printStackTrace();
+		}
+	}
+	
+	private void sendJoinRoomRequest(String pRoomName){
+		WebSocket webSocket = WebSocketProvider.getInstance().getWebSocket();
+		try {
+			this.mQueuedRoomName = pRoomName;
+			JSONObject json = new JSONObject().put("action", "join_room").put("room_name", pRoomName);
 			webSocket.send(json.toString());
 		} catch (Exception e) {
 			// TODO Handle
@@ -128,13 +145,20 @@ public class OkeyLoungeActivity extends Activity{
 			List<Room> roomSubList = pRoomList.subList(start, end);
 			
 			TableRow tableRow = new TableRow(this);
-	    	for(Room room : roomSubList){
+	    	for(final Room room : roomSubList){
 	    		
 	    		Button b = new Button(this);
 	    		b.setText(room.getName());
 	    		b.setTextSize(18);
 		        b.setPadding(6, 5, 15, 5);
 		        b.setSingleLine(true);
+		        
+		        b.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						sendJoinRoomRequest(room.getName());
+					}
+				});
 		        
 	    		tableRow.addView(b);
 	    	}
@@ -186,7 +210,20 @@ public class OkeyLoungeActivity extends Activity{
 						}
 					});
 				} else if(status.equals("join_room")){
-					//
+					Position userPosition = Position.fromString(json.getString("position"));
+					JSONArray usersJSONArray = json.getJSONArray("users");
+					List<User> usersList = new ArrayList<User>();
+					for(int i=0;i<usersJSONArray.length();i++){
+						JSONObject userJSON = usersJSONArray.getJSONObject(i);
+						String name = userJSON.getString("name");
+						Position pos = Position.fromString(userJSON.getString("position"));
+						usersList.add(new User(name, pos));
+					}
+					
+					Intent i = new Intent(OkeyLoungeActivity.this, OnlineOkeyClientActivity.class);
+					i.putExtra("game_information", new GameInformation(mQueuedRoomName, usersList)); // TODO
+					Player.getPlayer().setPosition(userPosition);
+					startActivity(i);
 				} else {
 					// TODO
 				}

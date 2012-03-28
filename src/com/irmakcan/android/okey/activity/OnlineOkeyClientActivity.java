@@ -15,22 +15,33 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegion
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
+import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
+
+import com.irmakcan.android.okey.model.GameInformation;
 
 public class OnlineOkeyClientActivity extends SimpleBaseGameActivity {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
-	private static final int CAMERA_WIDTH = 720;
+	private static final String LOG_TAG = "OnlineOkeyClientActivity";
+	
+	private static final int CAMERA_WIDTH = 800;
 	private static final int CAMERA_HEIGHT = 480;
 
+	
+	
 	// ===========================================================
 	// Fields
 	// ===========================================================
 
+	private GameInformation mGameInformation;
+	
 	private BitmapTextureAtlas mBitmapTextureAtlas;
 	private ITextureRegion mFaceTextureRegion;
+	
 
 	// ===========================================================
 	// Constructors
@@ -43,7 +54,18 @@ public class OnlineOkeyClientActivity extends SimpleBaseGameActivity {
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-
+	@Override
+	protected void onCreate(Bundle pSavedInstanceState) {
+		super.onCreate(pSavedInstanceState);
+		Bundle b = this.getIntent().getExtras();
+		if(b==null){
+			this.finish();
+		}else{
+			this.mGameInformation = (GameInformation) b.getSerializable("game_information");
+		}
+		Log.v(LOG_TAG, "Table Name: " + this.mGameInformation.getTableName());
+	}
+	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		Toast.makeText(this, "Touch & Drag the face!", Toast.LENGTH_LONG).show();

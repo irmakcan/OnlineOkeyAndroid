@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import com.irmakcan.android.okey.activity.LoginClientActivity;
 import com.irmakcan.android.okey.http.SSLClientProvider;
+import com.irmakcan.android.okey.model.Player;
+import com.irmakcan.android.okey.model.User;
 
 public class LoginAsyncTask extends AsyncTask<Void, Void, JSONObject>{
 	// ===========================================================
@@ -96,6 +98,7 @@ public class LoginAsyncTask extends AsyncTask<Void, Void, JSONObject>{
 			mActivity.flash(errorList);
 		}else{
 			Log.v("message", accessToken);
+			Player.setPlayer(new User(mParams.get(0).getValue()));
 			mActivity.loginSuccess(accessToken);
 		}
 	}
