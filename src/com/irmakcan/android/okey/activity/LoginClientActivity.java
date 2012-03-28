@@ -78,7 +78,6 @@ public class LoginClientActivity extends Activity {
 		Button loginButton = (Button)findViewById(R.id.loginscreen_button_login);
 		loginButton.setOnClickListener(mLoginAction);
 		
-		
 	}
 	
 	@Override
@@ -145,7 +144,7 @@ public class LoginClientActivity extends Activity {
 		
 		try {
 			showProgressDialog(); // TODO not showing up check
-			URI url = new URI("ws://192.168.1.6:8080/");
+			URI url = new URI("ws://192.168.1.100:8080/");
 			WebSocket ws = WebSocketProvider.getInstance().createWebSocketConnection(url);
 			ws.setEventHandler(mWebSocketEventHandler);
 			ws.connect();

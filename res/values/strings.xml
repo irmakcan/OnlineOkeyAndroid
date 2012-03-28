@@ -22,4 +22,13 @@
 	<string name="signupscreen_edittext_hint_password_confirmation">Password</string>
 	<string name="signupscreen_button_signup">Sign Up</string>
 	
+	<!-- Lounge Screen -->
+	<string name="loungescreen_button_create">Create Room</string>
+	<string name="loungescreen_button_refresh">Refresh List</string>
+	<!-- Create Room From -->
+	<string name="room_create_form_edittext_hint_roomname">Room Name</string>
+	<string name="room_create_form_edittext_roomname">Room Name:</string>
+	<string name="room_create_form_edittext_button_create">Create Room</string>
+	<string name="room_create_form_edittext_button_cancel">Cancel</string>
+	
 </resources>
