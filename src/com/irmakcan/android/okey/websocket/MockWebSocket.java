@@ -1,55 +1,61 @@
 package com.irmakcan.android.okey.websocket;
 
-import java.net.URI;
-
+import android.util.Log;
 import de.roderick.weberknecht.WebSocket;
-import de.roderick.weberknecht.WebSocketConnection;
+import de.roderick.weberknecht.WebSocketEventHandler;
 import de.roderick.weberknecht.WebSocketException;
 
-public class WebSocketProvider {
+public class MockWebSocket implements WebSocket {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	
+	private static final String LOG_TAG = "MockWebSocket";
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private static WebSocketProvider mInstance;
-	
-	protected WebSocket mWebSocket;
 	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	protected WebSocketProvider() {
-		
-	}
+	
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public static WebSocketProvider getInstance(){
-		if(mInstance == null){
-			mInstance = new WebSocketProvider();
-		}
-		return mInstance;
-	}
-	
-	public WebSocket createWebSocketConnection(URI pURI) throws WebSocketException{
-		if(this.mWebSocket != null && this.mWebSocket.isConnected()){
-			this.mWebSocket.close();
-		}
-		this.mWebSocket = new WebSocketConnection(pURI);
-		return this.mWebSocket;
-	}
-	
-	public WebSocket getWebSocket(){
-		return this.mWebSocket;
-	}
 	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+	@Override
+	public void setEventHandler(WebSocketEventHandler eventHandler) {
+		Log.v(LOG_TAG, "setEventHandler called");
+	}
+
+	@Override
+	public WebSocketEventHandler getEventHandler() {
+		Log.v(LOG_TAG, "getEventHandler called");
+		return null;
+	}
+
+	@Override
+	public void connect() throws WebSocketException {
+		Log.v(LOG_TAG, "connect called");
+	}
+
+	@Override
+	public void send(String data) throws WebSocketException {
+		Log.v(LOG_TAG, "send called");
+	}
+
+	@Override
+	public void close() throws WebSocketException {
+		Log.v(LOG_TAG, "close called");
+	}
+
+	@Override
+	public boolean isConnected() {
+		Log.v(LOG_TAG, "isConnected called");
+		return false;
+	}
 	// ===========================================================
 	// Methods
 	// ===========================================================
@@ -57,4 +63,7 @@ public class WebSocketProvider {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
+
+	
+
 }

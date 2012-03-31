@@ -1,12 +1,12 @@
-package com.irmakcan.android.okey.websocket;
+package com.irmakcan.android.okey.model;
 
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import de.roderick.weberknecht.WebSocket;
-import de.roderick.weberknecht.WebSocketConnection;
-import de.roderick.weberknecht.WebSocketException;
 
-public class WebSocketProvider {
+public class TableManager {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -14,37 +14,21 @@ public class WebSocketProvider {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private static WebSocketProvider mInstance;
 	
-	protected WebSocket mWebSocket;
+	private Map<TableCorner, List<TileSprite>> mCorners = new HashMap<TableCorner, List<TileSprite>>();
+	private TileSprite mIndicator;
 	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	protected WebSocketProvider() {
-		
+	public TableManager() {
+		for(TableCorner corner : TableCorner.values()){
+			mCorners.put(corner, new ArrayList<TileSprite>());
+		}
 	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public static WebSocketProvider getInstance(){
-		if(mInstance == null){
-			mInstance = new WebSocketProvider();
-		}
-		return mInstance;
-	}
-	
-	public WebSocket createWebSocketConnection(URI pURI) throws WebSocketException{
-		if(this.mWebSocket != null && this.mWebSocket.isConnected()){
-			this.mWebSocket.close();
-		}
-		this.mWebSocket = new WebSocketConnection(pURI);
-		return this.mWebSocket;
-	}
-	
-	public WebSocket getWebSocket(){
-		return this.mWebSocket;
-	}
 	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces

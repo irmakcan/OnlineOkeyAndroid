@@ -1,59 +1,47 @@
-package com.irmakcan.android.okey.websocket;
+package com.irmakcan.android.okey.model;
 
-import java.net.URI;
-
-import de.roderick.weberknecht.WebSocket;
-import de.roderick.weberknecht.WebSocketConnection;
-import de.roderick.weberknecht.WebSocketException;
-
-public class WebSocketProvider {
+public enum TableCorner {
+	// ===========================================================
+	// Elements
+	// ===========================================================
+	SW("sw"), SE("se"), NW("nw"), NE("ne");
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private static WebSocketProvider mInstance;
-	
-	protected WebSocket mWebSocket;
-	
+	private String mCorner;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	protected WebSocketProvider() {
-		
+	private TableCorner(final String pCorner) {
+		this.mCorner = pCorner;
 	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public static WebSocketProvider getInstance(){
-		if(mInstance == null){
-			mInstance = new WebSocketProvider();
-		}
-		return mInstance;
-	}
-	
-	public WebSocket createWebSocketConnection(URI pURI) throws WebSocketException{
-		if(this.mWebSocket != null && this.mWebSocket.isConnected()){
-			this.mWebSocket.close();
-		}
-		this.mWebSocket = new WebSocketConnection(pURI);
-		return this.mWebSocket;
-	}
-	
-	public WebSocket getWebSocket(){
-		return this.mWebSocket;
-	}
-	
+
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	
+
+	public static TableCorner fromString(String pCorner){
+		if(pCorner != null){
+			for(TableCorner corner : TableCorner.values()){
+				if(pCorner.equalsIgnoreCase(corner.mCorner)){
+					return corner;
+				}
+			}
+		}
+		throw new IllegalArgumentException("No constant with corner " + pCorner + " found");
+	}
+
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================

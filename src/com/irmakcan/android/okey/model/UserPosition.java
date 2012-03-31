@@ -1,58 +1,57 @@
-package com.irmakcan.android.okey.websocket;
+package com.irmakcan.android.okey.model;
 
-import java.net.URI;
-
-import de.roderick.weberknecht.WebSocket;
-import de.roderick.weberknecht.WebSocketConnection;
-import de.roderick.weberknecht.WebSocketException;
-
-public class WebSocketProvider {
+public enum UserPosition {
+	// ===========================================================
+	// Elements
+	// ===========================================================
+	SOUTH("south"), EAST("east"), NORTH("north"), WEST("west");
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private static WebSocketProvider mInstance;
-	
-	protected WebSocket mWebSocket;
-	
+	private String mPosition;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	protected WebSocketProvider() {
-		
+	private UserPosition(String pPosition) {
+		this.mPosition = pPosition;
 	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public static WebSocketProvider getInstance(){
-		if(mInstance == null){
-			mInstance = new WebSocketProvider();
-		}
-		return mInstance;
-	}
-	
-	public WebSocket createWebSocketConnection(URI pURI) throws WebSocketException{
-		if(this.mWebSocket != null && this.mWebSocket.isConnected()){
-			this.mWebSocket.close();
-		}
-		this.mWebSocket = new WebSocketConnection(pURI);
-		return this.mWebSocket;
-	}
-	
-	public WebSocket getWebSocket(){
-		return this.mWebSocket;
-	}
 	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
+	
+	public static boolean hasPosition(String pPosition){
+		if(pPosition != null){
+			for(UserPosition position : UserPosition.values()){
+				if(pPosition.equalsIgnoreCase(position.mPosition)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static UserPosition fromString(String pPosition){
+		if(pPosition != null){
+			for(UserPosition position : UserPosition.values()){
+				if(pPosition.equalsIgnoreCase(position.mPosition)){
+					return position;
+				}
+			}
+		}
+		throw new IllegalArgumentException("No constant with position " + pPosition + " found");
+	}
 	
 	// ===========================================================
 	// Inner and Anonymous Classes

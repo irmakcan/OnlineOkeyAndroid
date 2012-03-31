@@ -8,30 +8,32 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
-import org.andengine.ui.activity.SimpleBaseGameActivity;
+import org.andengine.ui.activity.BaseGameActivity;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.irmakcan.android.okey.model.GameInformation;
+import com.irmakcan.android.okey.model.Tile;
+import com.irmakcan.android.okey.model.TileColor;
+import com.irmakcan.android.okey.model.TileSprite;
 
-public class OnlineOkeyClientActivity extends SimpleBaseGameActivity {
+public class OnlineOkeyClientActivity extends BaseGameActivity {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-
 	private static final String LOG_TAG = "OnlineOkeyClientActivity";
 	
 	private static final int CAMERA_WIDTH = 800;
 	private static final int CAMERA_HEIGHT = 480;
-
-	
 	
 	// ===========================================================
 	// Fields
@@ -39,8 +41,11 @@ public class OnlineOkeyClientActivity extends SimpleBaseGameActivity {
 
 	private GameInformation mGameInformation;
 	
-	private BitmapTextureAtlas mBitmapTextureAtlas;
-	private ITextureRegion mFaceTextureRegion;
+	
+	private ITextureRegion mTileTextureRegion;
+	private ITextureRegion mBoardWoodTextureRegion;
+
+	private Font mFont;
 	
 
 	// ===========================================================
@@ -68,7 +73,7 @@ public class OnlineOkeyClientActivity extends SimpleBaseGameActivity {
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		Toast.makeText(this, "Touch & Drag the face!", Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, "Touch & Drag the face!", Toast.LENGTH_LONG).show();
 
 		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 
@@ -76,36 +81,47 @@ public class OnlineOkeyClientActivity extends SimpleBaseGameActivity {
 	}
 
 	@Override
-	public void onCreateResources() {
+	public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback) {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-
-		this.mBitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 32, TextureOptions.BILINEAR);
-		this.mFaceTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mBitmapTextureAtlas, this, "face_box.png", 0, 0);
-		this.mBitmapTextureAtlas.load();
+		BitmapTextureAtlas bitmapTextureAtlas;
+		// Tile
+		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 56, 84, TextureOptions.BILINEAR);
+		this.mTileTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "tile.png", 0, 0);
+		bitmapTextureAtlas.load();
+		
+		// Board
+		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 96, 144, TextureOptions.BILINEAR);
+		this.mBoardWoodTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "board_wood.png", 0, 0);
+		bitmapTextureAtlas.load();
+		
+		// Load Fonts
+		this.mFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 48, Color.WHITE);
+		this.mFont.load();
+		
+		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 
 	@Override
-	public Scene onCreateScene() {
+	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		final Scene scene = new Scene();
 		scene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
 
-		final float centerX = (CAMERA_WIDTH - this.mFaceTextureRegion.getWidth()) / 2;
-		final float centerY = (CAMERA_HEIGHT - this.mFaceTextureRegion.getHeight()) / 2;
-		final Sprite face = new Sprite(centerX, centerY, this.mFaceTextureRegion, this.getVertexBufferObjectManager()) {
-			@Override
-			public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
-				this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2);
-				return true;
-			}
-		};
-		face.setScale(4);
-		scene.attachChild(face);
-		scene.registerTouchArea(face);
+		
+		final Sprite tile = new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), new Tile(TileColor.BLUE, 12) , mFont);
+		tile.setScale(1);
+		scene.attachChild(tile);
+		scene.registerTouchArea(tile);
 		scene.setTouchAreaBindingOnActionDownEnabled(true);
 
-		return scene;
+		pOnCreateSceneCallback.onCreateSceneFinished(scene);
+	}
+	
+	@Override
+	public void onPopulateScene(Scene pScene, OnPopulateSceneCallback pOnPopulateSceneCallback)	throws Exception {
+		
+		pOnPopulateSceneCallback.onPopulateSceneFinished();
 	}
 
 	// ===========================================================

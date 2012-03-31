@@ -1,53 +1,63 @@
 package com.irmakcan.android.okey.model;
 
-import java.io.Serializable;
+import org.andengine.util.color.Color;
 
-public class User implements Serializable {
+public enum TileColor {
+	// ===========================================================
+	// Elements
+	// ===========================================================
+	BLACK(0, new Color(0, 0, 0)), BLUE(1, new Color(0, 0, 1f)), ORANGE(2, new Color(0.7f, 0.1f, 0.4f)), RED(3, new Color(1f, 0, 0.4f));
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	private static final long serialVersionUID = 1L;
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private String mUserName;
-	private UserPosition mPosition;
+	private final int mColorId;
+	private final Color mColor;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public User() {
-		// TODO Auto-generated constructor stub
-	}
-	public User(String pUserName){
-		this.mUserName = pUserName;
-	}
-	public User(String pUserName, UserPosition pPosition) {
-		this(pUserName);
-		this.mPosition = pPosition;
+	private TileColor(final int pColorId, final Color pColor) {
+		this.mColorId = pColorId;
+		this.mColor = pColor;
+		
 	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public String getUserName() {
-		return this.mUserName;
-	}
-	public void setUserName(String pUserName) {
-		this.mUserName = pUserName;
-	}
-	public UserPosition getPosition() {
-		return this.mPosition;
-	}
-	public void setPosition(UserPosition pPosition) {
-		this.mPosition = pPosition;
+	public Color getColor(){
+		return this.mColor;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	
+
+//	public static boolean hasPosition(String pPosition){
+//		if(pPosition != null){
+//			for(Position position : Position.values()){
+//				if(pPosition.equalsIgnoreCase(position.mPosition)){
+//					return true;
+//				}
+//			}
+//		}
+//		return false;
+//	}
+
+	public static TileColor fromId(final int pColorId){
+		for(TileColor color : TileColor.values()){
+			if(pColorId == color.mColorId){
+				return color;
+			}
+		}
+		throw new IllegalArgumentException("No constant with color id " + pColorId + " found");
+	}
+
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
