@@ -30,7 +30,6 @@ public enum TableCorner {
 	// ===========================================================
 	// Methods
 	// ===========================================================
-
 	public static TableCorner fromString(String pCorner){
 		if(pCorner != null){
 			for(TableCorner corner : TableCorner.values()){
