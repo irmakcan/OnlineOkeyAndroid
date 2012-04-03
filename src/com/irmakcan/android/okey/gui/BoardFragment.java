@@ -1,23 +1,24 @@
-package com.irmakcan.android.okey.model;
+package com.irmakcan.android.okey.gui;
 
-public enum UserPosition {
-	// ===========================================================
-	// Elements
-	// ===========================================================
-	SOUTH("south"), EAST("east"), NORTH("north"), WEST("west");
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
+
+public class BoardFragment extends Sprite {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-
+	
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private String mPosition;
+	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	private UserPosition(String pPosition) {
-		this.mPosition = pPosition;
+	public BoardFragment(float pX, float pY, ITextureRegion pTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
+		this.setSize(Constants.FRAGMENT_WIDTH, Constants.FRAGMENT_HEIGHT);
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -26,34 +27,14 @@ public enum UserPosition {
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-
+	
 	// ===========================================================
 	// Methods
 	// ===========================================================
 	
-	public static boolean hasPosition(String pPosition){
-		if(pPosition != null){
-			for(UserPosition position : UserPosition.values()){
-				if(pPosition.equalsIgnoreCase(position.mPosition)){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
-	public static UserPosition fromString(String pPosition){
-		if(pPosition != null){
-			for(UserPosition position : UserPosition.values()){
-				if(pPosition.equalsIgnoreCase(position.mPosition)){
-					return position;
-				}
-			}
-		}
-		throw new IllegalArgumentException("No constant with position " + pPosition + " found");
-	}
-	
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
+	
+
 }

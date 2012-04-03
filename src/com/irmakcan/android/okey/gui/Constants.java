@@ -1,33 +1,22 @@
-package com.irmakcan.android.okey.model;
+package com.irmakcan.android.okey.gui;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
-public class TableManager {
+public class Constants {
 	// ===========================================================
 	// Constants
 	// ===========================================================
+	public static final float TILE_WIDTH = 56;
+	public static final float TILE_HEIGHT = 84;
 	
+	public static final float FRAGMENT_WIDTH = TILE_WIDTH;
+	public static final float FRAGMENT_HEIGHT = TILE_HEIGHT + 10;
 	// ===========================================================
 	// Fields
 	// ===========================================================
 	
-	private Map<TableCorner, List<Tile>> mCorners = new HashMap<TableCorner, List<Tile>>();
-	private Tile mIndicator;
-	private int mCenterCount;
-//	private Board mBoard;
-	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public TableManager(final User pPlayer/*, final TableUI pTableUI*/) {
-		for(TableCorner corner : TableCorner.values()){
-			mCorners.put(corner, new ArrayList<Tile>());
-		}
-	}
+	
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
@@ -39,12 +28,8 @@ public class TableManager {
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	private void initializeGame(final Position pTurn, final int pCenterCount, final List<Tile> pUserHand, final Tile pIndicator) {
-		
-	}
+	
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-	
-	
 }

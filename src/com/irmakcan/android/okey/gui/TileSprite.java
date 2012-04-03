@@ -1,4 +1,4 @@
-package com.irmakcan.android.okey.model;
+package com.irmakcan.android.okey.gui;
 
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
@@ -9,6 +9,8 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
+import com.irmakcan.android.okey.model.Tile;
+
 public class TileSprite extends Sprite {
 	// ===========================================================
 	// Constants
@@ -17,9 +19,7 @@ public class TileSprite extends Sprite {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	
 	private final Tile mTile;
-	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -52,6 +52,11 @@ public class TileSprite extends Sprite {
 		case TouchEvent.ACTION_DOWN:
 			break;
 		case TouchEvent.ACTION_UP:
+//			if(this.collidesWith(OnlineOkeyClientActivity.board)){
+//				Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + "centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
+//			}else{
+//				// Send it back where it comes from
+//			}
 			break;
 		default: // Set its position where it is picked up
 			break;

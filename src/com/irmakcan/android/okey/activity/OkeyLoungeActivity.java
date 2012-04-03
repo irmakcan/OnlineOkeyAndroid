@@ -29,7 +29,7 @@ import android.widget.Toast;
 import com.irmakcan.android.okey.R;
 import com.irmakcan.android.okey.model.GameInformation;
 import com.irmakcan.android.okey.model.Player;
-import com.irmakcan.android.okey.model.UserPosition;
+import com.irmakcan.android.okey.model.Position;
 import com.irmakcan.android.okey.model.Room;
 import com.irmakcan.android.okey.model.User;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
@@ -210,13 +210,13 @@ public class OkeyLoungeActivity extends Activity{
 						}
 					});
 				} else if(status.equals("join_room")){
-					UserPosition userPosition = UserPosition.fromString(json.getString("position"));
+					Position userPosition = Position.fromString(json.getString("position"));
 					JSONArray usersJSONArray = json.getJSONArray("users");
 					List<User> usersList = new ArrayList<User>();
 					for(int i=0;i<usersJSONArray.length();i++){
 						JSONObject userJSON = usersJSONArray.getJSONObject(i);
 						String name = userJSON.getString("name");
-						UserPosition pos = UserPosition.fromString(userJSON.getString("position"));
+						Position pos = Position.fromString(userJSON.getString("position"));
 						usersList.add(new User(name, pos));
 					}
 					

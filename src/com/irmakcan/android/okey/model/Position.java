@@ -1,32 +1,23 @@
 package com.irmakcan.android.okey.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
-public class TableManager {
+public enum Position {
+	// ===========================================================
+	// Elements
+	// ===========================================================
+	SOUTH("south"), EAST("east"), NORTH("north"), WEST("west");
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	
-	private Map<TableCorner, List<Tile>> mCorners = new HashMap<TableCorner, List<Tile>>();
-	private Tile mIndicator;
-	private int mCenterCount;
-//	private Board mBoard;
-	
+	private String mPosition;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public TableManager(final User pPlayer/*, final TableUI pTableUI*/) {
-		for(TableCorner corner : TableCorner.values()){
-			mCorners.put(corner, new ArrayList<Tile>());
-		}
+	private Position(final String pPosition) {
+		this.mPosition = pPosition;
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -35,16 +26,34 @@ public class TableManager {
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	private void initializeGame(final Position pTurn, final int pCenterCount, final List<Tile> pUserHand, final Tile pIndicator) {
-		
+	
+	public static boolean hasPosition(String pPosition){
+		if(pPosition != null){
+			for(Position position : Position.values()){
+				if(pPosition.equalsIgnoreCase(position.mPosition)){
+					return true;
+				}
+			}
+		}
+		return false;
 	}
+	
+	public static Position fromString(String pPosition){
+		if(pPosition != null){
+			for(Position position : Position.values()){
+				if(pPosition.equalsIgnoreCase(position.mPosition)){
+					return position;
+				}
+			}
+		}
+		throw new IllegalArgumentException("No constant with position " + pPosition + " found");
+	}
+	
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-	
-	
 }

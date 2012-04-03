@@ -11,7 +11,7 @@ public class User implements Serializable {
 	// Fields
 	// ===========================================================
 	private String mUserName;
-	private UserPosition mPosition;
+	private Position mPosition;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -21,7 +21,7 @@ public class User implements Serializable {
 	public User(String pUserName){
 		this.mUserName = pUserName;
 	}
-	public User(String pUserName, UserPosition pPosition) {
+	public User(String pUserName, Position pPosition) {
 		this(pUserName);
 		this.mPosition = pPosition;
 	}
@@ -34,10 +34,10 @@ public class User implements Serializable {
 	public void setUserName(String pUserName) {
 		this.mUserName = pUserName;
 	}
-	public UserPosition getPosition() {
+	public Position getPosition() {
 		return this.mPosition;
 	}
-	public void setPosition(UserPosition pPosition) {
+	public void setPosition(Position pPosition) {
 		this.mPosition = pPosition;
 	}
 	// ===========================================================
