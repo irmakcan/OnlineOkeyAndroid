@@ -1,5 +1,6 @@
 package com.irmakcan.android.okey.gui;
 
+import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
@@ -9,9 +10,12 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
+import android.util.Log;
+
+import com.irmakcan.android.okey.model.TableManager;
 import com.irmakcan.android.okey.model.Tile;
 
-public class TileSprite extends Sprite {
+public class TileSprite extends Sprite implements IPendingOperation{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -20,19 +24,28 @@ public class TileSprite extends Sprite {
 	// Fields
 	// ===========================================================
 	private final Tile mTile;
+	private final TableManager mTableManager;
+	private final Scene mScene;
+
+	private boolean mTouchEnabled = false;
+
+	private float mOldX;
+	private float mOldY;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 	public TileSprite(float pX, float pY, ITextureRegion pTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager, 
-				Tile pTile, Font pFont) {
+			Tile pTile, Font pFont, TableManager pTableManager, Scene pScene) {
 		super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
 		this.mTile = pTile;
-		
+		this.mTableManager = pTableManager;
+		this.mScene = pScene; // TODO may get another source
+
 		final Text centerText = new Text(0, 0, pFont, Integer.toString(pTile.getValue()), MAXIMUM_CHARACTERS, new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
 		centerText.setColor(pTile.getTileColor().getColor());
 		centerText.setPosition((pTextureRegion.getWidth()/2)-(centerText.getWidth()/2), 4); // TODO
 		this.attachChild(centerText);
-		
+
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -45,29 +58,55 @@ public class TileSprite extends Sprite {
 	// ===========================================================
 	@Override
 	public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
-		
-		switch (pSceneTouchEvent.getAction()) {
-		case TouchEvent.ACTION_MOVE:
-			this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2); break;
-		case TouchEvent.ACTION_DOWN:
-			break;
-		case TouchEvent.ACTION_UP:
-//			if(this.collidesWith(OnlineOkeyClientActivity.board)){
-//				Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + "centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
-//			}else{
-//				// Send it back where it comes from
-//			}
-			break;
-		default: // Set its position where it is picked up
-			break;
+		if(this.mTouchEnabled){
+			switch (pSceneTouchEvent.getAction()) {
+			case TouchEvent.ACTION_MOVE:
+				Log.v("TileSprite", "x: " + pSceneTouchEvent.getX() + " y: " + pSceneTouchEvent.getY());
+				this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight()/2); break;
+			case TouchEvent.ACTION_DOWN:
+				this.mOldX = this.getX();
+				this.mOldY = this.getY();
+				this.setZIndex(1);
+				this.getParent().sortChildren();
+				break;
+			case TouchEvent.ACTION_UP:
+				if(this.collidesWith(mTableManager.getBoard())){
+					Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + " centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
+				}else if(this.collidesWith(mTableManager.getNextCornerStack())){
+					Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + "centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
+//				}else if(this.collidesWith(mTableManager.getCenterStack())){ // Throw to finish
+
+				}else{
+					this.cancelPendingOperation();// Send it back where it comes from
+				}
+				this.setZIndex(0);
+				this.getParent().sortChildren();
+				break;
+			default: // Set its position where it is picked up
+				break;
+			}
 		}
 		return true;
 	}
-	
+
+	@Override
+	public void cancelPendingOperation() {
+		this.setPosition(mOldX, mOldY);
+	}
+	@Override
+	public void pendingOperationSuccess() {
+		// TODO
+	}
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	
+	public void enableTouch() {
+		this.mTouchEnabled = true;
+	}
+	public void disableTouch() {
+		this.mTouchEnabled = false;
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================

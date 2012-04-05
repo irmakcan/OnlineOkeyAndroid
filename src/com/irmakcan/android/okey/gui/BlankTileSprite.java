@@ -1,44 +1,57 @@
 package com.irmakcan.android.okey.gui;
 
-import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import com.irmakcan.android.okey.model.TableCorner;
-
-public class CornerRectangle extends Rectangle {
+public class BlankTileSprite extends Sprite {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	//Stack<E>
-	private final TableCorner mTableCorner;
 
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public CornerRectangle(float pX, float pY, float pWidth, float pHeight, 
-			VertexBufferObjectManager pVertexBufferObjectManager, final TableCorner pTableCorner) {
-		super(pX, pY, pWidth, pHeight, pVertexBufferObjectManager);
-		
-		this.mTableCorner = pTableCorner;
+	public BlankTileSprite(float pX, float pY, ITextureRegion pTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
 	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public TableCorner getTableCorner() {
-		return this.mTableCorner;
-	}
+	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+	@Override
+	public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+
+		switch (pSceneTouchEvent.getAction()) {
+		case TouchEvent.ACTION_MOVE:
+			this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight() / 2); break;
+		case TouchEvent.ACTION_DOWN:
+			break;
+		case TouchEvent.ACTION_UP:
+//			if(this.collidesWith(OnlineOkeyClientActivity.board)){
+//				Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + "centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
+//			}else{
+//				// Send it back where it comes from
+//			}
+			break;
+		default: // Set its position where it was picked up
+			break;
+		}
+		return true;
+	}
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================

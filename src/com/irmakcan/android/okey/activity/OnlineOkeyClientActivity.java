@@ -1,16 +1,16 @@
 package com.irmakcan.android.okey.activity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
-import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -24,6 +24,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -31,14 +32,18 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.irmakcan.android.okey.gui.Board;
+import com.irmakcan.android.okey.gui.Constants;
+import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
 import com.irmakcan.android.okey.gui.TileSprite;
 import com.irmakcan.android.okey.model.GameInformation;
 import com.irmakcan.android.okey.model.Player;
+import com.irmakcan.android.okey.model.Position;
+import com.irmakcan.android.okey.model.TableCorner;
 import com.irmakcan.android.okey.model.TableManager;
 import com.irmakcan.android.okey.model.Tile;
-import com.irmakcan.android.okey.model.TileColor;
-import com.irmakcan.android.okey.model.Position;
+import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
+import de.roderick.weberknecht.WebSocket;
 import de.roderick.weberknecht.WebSocketEventHandler;
 import de.roderick.weberknecht.WebSocketMessage;
 
@@ -51,6 +56,16 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private static final int CAMERA_WIDTH = 800;
 	private static final int CAMERA_HEIGHT = 480;
 
+	private static final int TILE_WIDTH = 56;
+	private static final int TILE_HEIGHT = 84;
+
+	private static final int CORNER_X_MARGIN = 30;
+	private static final int CORNER_Y_MARGIN = 20;
+	private static final Point[] CORNER_POINTS = new Point[] { 
+		new Point((CAMERA_WIDTH - (TILE_WIDTH + CORNER_X_MARGIN)), CAMERA_HEIGHT - (((int)Constants.FRAGMENT_HEIGHT*2) + CORNER_Y_MARGIN + TILE_HEIGHT)), 
+		new Point((CAMERA_WIDTH - (TILE_WIDTH + CORNER_X_MARGIN)), CORNER_Y_MARGIN), 
+		new Point(CORNER_X_MARGIN, CORNER_Y_MARGIN), 
+		new Point(CORNER_X_MARGIN, CAMERA_HEIGHT - (((int)Constants.FRAGMENT_HEIGHT*2) + CORNER_Y_MARGIN + TILE_HEIGHT)) };
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -67,6 +82,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private Font mTileFont;
 
+	private Board mBoard;
+	private Map<TableCorner, CornerTileStackRectangle> mCornerStacks;
+	
+	private Scene mScene;
 
 
 
@@ -105,7 +124,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 		BitmapTextureAtlas bitmapTextureAtlas;
 		// Tile
-		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 56, 84, TextureOptions.BILINEAR);
+		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), TILE_WIDTH, TILE_HEIGHT, TextureOptions.BILINEAR);
 		this.mTileTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "tile.png", 0, 0);
 		bitmapTextureAtlas.load();
 
@@ -125,27 +144,32 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback) {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
-		final Scene scene = new Scene();
-		scene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
+		mScene = new Scene();
+		mScene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
 
-		// TEST TODO
-		Board board = new Board(0, 0, mBoardWoodTextureRegion, this.getVertexBufferObjectManager());
-		board.setPosition((CAMERA_WIDTH/2)-(board.getWidth()/2), CAMERA_HEIGHT-board.getHeight());
-		scene.attachChild(board);
+		// Create board
+		this.mBoard = new Board(0, 0, mBoardWoodTextureRegion, this.getVertexBufferObjectManager());
+		mBoard.setPosition((CAMERA_WIDTH/2)-(mBoard.getWidth()/2), CAMERA_HEIGHT-mBoard.getHeight());
+		mScene.attachChild(mBoard);
 
-		final Sprite tile = new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), new Tile(TileColor.BLUE, 12) , mTileFont);
-		tile.setScale(1);
-		scene.attachChild(tile);
-		scene.registerTouchArea(tile);
-		scene.setTouchAreaBindingOnActionDownEnabled(true);
+		// Create corners
+		this.mCornerStacks = new HashMap<TableCorner, CornerTileStackRectangle>();
+		Position position = Player.getPlayer().getPosition();
 
-		// TEST TODO
-		Rectangle r = new Rectangle(15, 15, 40, 40, getVertexBufferObjectManager());
-		r.setAlpha(0f);
-		scene.attachChild(r);
+		for(int i=0;i < 4;i++){
+			TableCorner corner = TableCorner.nextCornerFromPosition(position);
+			Log.v(LOG_TAG, corner.toString());
+			final Point point = CORNER_POINTS[i];
+			final CornerTileStackRectangle cornerStack = new CornerTileStackRectangle(point.x, point.y, TILE_WIDTH, TILE_HEIGHT, this.getVertexBufferObjectManager(), corner);
+			mScene.attachChild(cornerStack);
+			this.mCornerStacks.put(corner, cornerStack);
+			position = corner.nextPosition();
+		}
 
+		mScene.setTouchAreaBindingOnActionDownEnabled(true);
+		mScene.setTouchAreaBindingOnActionMoveEnabled(true);
 
-		pOnCreateSceneCallback.onCreateSceneFinished(scene);
+		pOnCreateSceneCallback.onCreateSceneFinished(mScene);
 	}
 
 	@Override
@@ -158,12 +182,28 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	public synchronized void onGameCreated() {
 		super.onGameCreated();
 
-		this.mTableManager = new TableManager(Player.getPlayer());
+		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks);
+		WebSocket webSocket = WebSocketProvider.getWebSocket();
+		webSocket.setEventHandler(mWebSocketEventHandler);
+
+		// TODO
+		try {
+			JSONObject json = new JSONObject().put("action", "ready");
+			webSocket.send(json.toString());
+		} catch (Exception e) {
+			// TODO Handle
+			e.printStackTrace();
+		}
+		
 	}
 	// ===========================================================
 	// Methods
 	// ===========================================================
-
+	
+	private TileSprite createNewTileSprite(final Tile pTile) {
+		return new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager, this.mScene);
+	}
+	
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
@@ -182,11 +222,18 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				final JSONObject json = new JSONObject(message.getText());
 				final String status =json.getString("status");
 				if(status.equals("error")){
+					
 					final String errorMessage = json.getString("message");
 					mHandler.post(new Runnable() {
 						@Override
 						public void run() {
 							Toast.makeText(OnlineOkeyClientActivity.this.getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
+						}
+					});
+					OnlineOkeyClientActivity.this.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							OnlineOkeyClientActivity.this.mTableManager.cancelPendingOperation();
 						}
 					});
 				} else if(status.equals("throw_tile")){
@@ -199,15 +246,27 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					// {"status":"user_leave","position":"west"}
 				} else if(status.equals("game_start")){
 					// {"status":"game_start","turn":"south","center_count":48,"hand":["4:0","7:3",...,"6:2"],"indicator":"4:0"}
-					Position turn = Position.fromString(json.getString("turn"));
-					int centerCount = json.getInt("center_count");
+					Position turn = Position.fromString(json.getString("turn")); // TODO
+					int centerCount = json.getInt("center_count"); // TODO
 					JSONArray jsonHand = json.getJSONArray("hand");
-					List<Tile> userHand = new ArrayList<Tile>();
+					final List<Tile> userHand = new ArrayList<Tile>();
 					for(int i=0;i < jsonHand.length();i++){
 						userHand.add(Tile.fromString(jsonHand.getString(i)));
 					}
-					Tile indicator = Tile.fromString(json.getString("indicator"));
+					final Tile indicator = Tile.fromString(json.getString("indicator"));
 					//mTableManager.initializeGame();
+					OnlineOkeyClientActivity.this.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							for(Tile tile : userHand){
+								TileSprite ts = createNewTileSprite(tile);
+								mScene.registerTouchArea(ts);
+								ts.enableTouch();
+								mScene.attachChild(ts);
+								mBoard.addChild(ts);
+							}
+						}
+					});
 				} else {
 					// TODO
 				}

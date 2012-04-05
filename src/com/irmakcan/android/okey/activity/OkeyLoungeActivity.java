@@ -84,7 +84,7 @@ public class OkeyLoungeActivity extends Activity{
 		
 		
 		/* -- should be onStart ? -- */
-		WebSocket webSocket = WebSocketProvider.getInstance().getWebSocket();
+		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		webSocket.setEventHandler(mWebSocketEventHandler);
 		sendRefreshRequest();
 		/* ----------- */
@@ -97,7 +97,7 @@ public class OkeyLoungeActivity extends Activity{
 	// Methods
 	// ===========================================================
 	private void sendRefreshRequest(){
-		WebSocket webSocket = WebSocketProvider.getInstance().getWebSocket();
+		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		try {
 			JSONObject json = new JSONObject().put("action", "refresh_list");
 			webSocket.send(json.toString());
@@ -108,7 +108,7 @@ public class OkeyLoungeActivity extends Activity{
 	}
 	
 	private void sendCreateRoomRequest(String pRoomName){
-		WebSocket webSocket = WebSocketProvider.getInstance().getWebSocket();
+		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		try {
 			this.mQueuedRoomName = pRoomName;
 			JSONObject json = new JSONObject().put("action", "create_room").put("room_name", pRoomName);
@@ -120,7 +120,7 @@ public class OkeyLoungeActivity extends Activity{
 	}
 	
 	private void sendJoinRoomRequest(String pRoomName){
-		WebSocket webSocket = WebSocketProvider.getInstance().getWebSocket();
+		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		try {
 			this.mQueuedRoomName = pRoomName;
 			JSONObject json = new JSONObject().put("action", "join_room").put("room_name", pRoomName);

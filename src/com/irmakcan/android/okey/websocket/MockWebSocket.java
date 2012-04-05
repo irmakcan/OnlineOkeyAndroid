@@ -1,9 +1,15 @@
 package com.irmakcan.android.okey.websocket;
 
+import java.io.UnsupportedEncodingException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.util.Log;
 import de.roderick.weberknecht.WebSocket;
 import de.roderick.weberknecht.WebSocketEventHandler;
 import de.roderick.weberknecht.WebSocketException;
+import de.roderick.weberknecht.WebSocketMessage;
 
 public class MockWebSocket implements WebSocket {
 	// ===========================================================
@@ -13,7 +19,7 @@ public class MockWebSocket implements WebSocket {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	
+	private WebSocketEventHandler mEventHandler;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -27,13 +33,14 @@ public class MockWebSocket implements WebSocket {
 	// ===========================================================
 	@Override
 	public void setEventHandler(WebSocketEventHandler eventHandler) {
+		this.mEventHandler = eventHandler;
 		Log.v(LOG_TAG, "setEventHandler called");
 	}
 
 	@Override
 	public WebSocketEventHandler getEventHandler() {
 		Log.v(LOG_TAG, "getEventHandler called");
-		return null;
+		return this.mEventHandler;
 	}
 
 	@Override
@@ -44,6 +51,27 @@ public class MockWebSocket implements WebSocket {
 	@Override
 	public void send(String data) throws WebSocketException {
 		Log.v(LOG_TAG, "send called");
+		try{
+			JSONObject json = new JSONObject(data);
+			final String action = json.getString("action");
+			if(action.equals("ready")){
+				String response = "{\"status\":\"game_start\",\"turn\":\"south\",\"center_count\":48," +
+						"\"hand\":[\"4:0\",\"7:3\",\"6:2\"]," +
+						"\"indicator\":\"4:0\"}";
+				byte[] resp = response.getBytes("UTF-8");
+				Byte[] r = new Byte[resp.length];
+				for(int i=0;i<resp.length;i++){
+					r[i] = resp[i];
+				}
+				
+				this.mEventHandler.onMessage(new WebSocketMessage(r));
+			}
+	//		this.mEventHandler.onMessage(message);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -54,7 +82,7 @@ public class MockWebSocket implements WebSocket {
 	@Override
 	public boolean isConnected() {
 		Log.v(LOG_TAG, "isConnected called");
-		return false;
+		return true;
 	}
 	// ===========================================================
 	// Methods

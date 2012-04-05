@@ -145,7 +145,7 @@ public class LoginClientActivity extends Activity {
 		try {
 			showProgressDialog(); // TODO not showing up check
 			URI url = new URI("ws://192.168.1.100:8080/");
-			WebSocket ws = WebSocketProvider.getInstance().createWebSocketConnection(url);
+			WebSocket ws = WebSocketProvider.createWebSocketConnection(url);
 			ws.setEventHandler(mWebSocketEventHandler);
 			ws.connect();
 			JSONObject json = new JSONObject();

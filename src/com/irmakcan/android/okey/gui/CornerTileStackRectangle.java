@@ -1,12 +1,13 @@
-package com.irmakcan.android.okey.websocket;
+package com.irmakcan.android.okey.gui;
 
-import java.net.URI;
+import java.util.Stack;
 
-import de.roderick.weberknecht.WebSocket;
-import de.roderick.weberknecht.WebSocketConnection;
-import de.roderick.weberknecht.WebSocketException;
+import org.andengine.entity.primitive.Rectangle;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-public class WebSocketProvider {
+import com.irmakcan.android.okey.model.TableCorner;
+
+public class CornerTileStackRectangle extends Rectangle {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -14,44 +15,43 @@ public class WebSocketProvider {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	protected static WebSocket mWebSocket;
 	
+	private final Stack<TileSprite> mTileStack = new Stack<TileSprite>();
+	private final TableCorner mTableCorner;
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	protected WebSocketProvider() {
-		
+	public CornerTileStackRectangle(float pX, float pY, float pWidth, float pHeight, 
+			VertexBufferObjectManager pVertexBufferObjectManager, final TableCorner pTableCorner) {
+		super(pX, pY, pWidth, pHeight, pVertexBufferObjectManager);
+		this.setZIndex(0);
+		this.mTableCorner = pTableCorner;
 	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public static WebSocket createWebSocketConnection(URI pURI) throws WebSocketException{
-		if(mWebSocket != null && mWebSocket.isConnected()){
-			mWebSocket.close();
-		}
-		mWebSocket = new WebSocketConnection(pURI);
-		return mWebSocket;
+	public TableCorner getTableCorner() {
+		return this.mTableCorner;
 	}
-	
-	public static WebSocket getWebSocket(){
-		if(mWebSocket == null){
-			throw new IllegalStateException("WebSocket should be created first");
-		}
-		return mWebSocket;
-	}
-	
-	public static void setWebSocket(final WebSocket pWebSocket){
-		mWebSocket = pWebSocket;
-	}
-	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	
+	public TileSprite pop() {
+		final TileSprite tile = mTileStack.pop();
+		return tile;
+	}
+	public void push(final TileSprite pTileSprite) {
+		pTileSprite.setZIndex(this.mTileStack.size());
+		pTileSprite.getParent().sortChildren();
+		pTileSprite.setPosition(this);
+		
+		mTileStack.push(pTileSprite);
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
