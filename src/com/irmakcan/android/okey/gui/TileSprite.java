@@ -1,6 +1,5 @@
 package com.irmakcan.android.okey.gui;
 
-import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
@@ -25,7 +24,8 @@ public class TileSprite extends Sprite implements IPendingOperation{
 	// ===========================================================
 	private final Tile mTile;
 	private final TableManager mTableManager;
-	private final Scene mScene;
+	
+	private IHolder mIHolder;
 
 	private boolean mTouchEnabled = false;
 
@@ -35,11 +35,10 @@ public class TileSprite extends Sprite implements IPendingOperation{
 	// Constructors
 	// ===========================================================
 	public TileSprite(float pX, float pY, ITextureRegion pTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager, 
-			Tile pTile, Font pFont, TableManager pTableManager, Scene pScene) {
+			Tile pTile, Font pFont, TableManager pTableManager) {
 		super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
 		this.mTile = pTile;
 		this.mTableManager = pTableManager;
-		this.mScene = pScene; // TODO may get another source
 
 		final Text centerText = new Text(0, 0, pFont, Integer.toString(pTile.getValue()), MAXIMUM_CHARACTERS, new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
 		centerText.setColor(pTile.getTileColor().getColor());
@@ -52,6 +51,13 @@ public class TileSprite extends Sprite implements IPendingOperation{
 	// ===========================================================
 	public Tile getTile(){
 		return this.mTile;
+	}
+	
+	public IHolder getIHolder() {
+		return this.mIHolder;
+	}
+	public void setIHolder(final IHolder pIHolder) {
+		this.mIHolder = pIHolder;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
@@ -72,6 +78,13 @@ public class TileSprite extends Sprite implements IPendingOperation{
 			case TouchEvent.ACTION_UP:
 				if(this.collidesWith(mTableManager.getBoard())){
 					Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + " centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
+					final Board board = mTableManager.getBoard();
+					boolean success = board.addChild(this, (pSceneTouchEvent.getX() - board.getX()), (pSceneTouchEvent.getY() - board.getY()));
+					if(!success){
+						cancelPendingOperation();
+					}else{
+						// TODO remove from board fragment
+					}
 				}else if(this.collidesWith(mTableManager.getNextCornerStack())){
 					Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + "centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
 //				}else if(this.collidesWith(mTableManager.getCenterStack())){ // Throw to finish
@@ -94,7 +107,7 @@ public class TileSprite extends Sprite implements IPendingOperation{
 		this.setPosition(mOldX, mOldY);
 	}
 	@Override
-	public void pendingOperationSuccess() {
+	public void pendingOperationSuccess(Object o) {
 		// TODO
 	}
 

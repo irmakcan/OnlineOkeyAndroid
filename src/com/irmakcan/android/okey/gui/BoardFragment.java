@@ -5,7 +5,7 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-public class BoardFragment extends Sprite {
+public class BoardFragment extends Sprite implements IHolder {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -34,25 +34,35 @@ public class BoardFragment extends Sprite {
 	// ===========================================================
 	// Methods
 	// ===========================================================
+	@Override
 	public void addTileSprite(final TileSprite pTileSprite) throws IllegalStateException {
 		if(this.mTileSprite != null){
 			throw new IllegalStateException("There is already a tile");
 		}
+		IHolder holder = pTileSprite.getIHolder();
+		if(holder != null){
+			holder.removeTileSprite();
+		}
+		pTileSprite.setIHolder(this);
 		this.mTileSprite = pTileSprite;
 		pTileSprite.setPosition(this.getParent().getX() + this.getX(), 
 				this.getParent().getY() + this.getY() + (this.getHeight() - pTileSprite.getHeight())); // Set position
 	}
+	@Override
 	public TileSprite getTileSprite() {
 		return this.mTileSprite;
 	}
+	@Override
 	public TileSprite removeTileSprite() throws IllegalStateException {
 		if(this.mTileSprite == null){
 			throw new IllegalStateException("No tile sprite has found");
 		}
+//		this.mTileSprite.setIHolder(null);
 		final TileSprite ts = this.mTileSprite; 
 		this.mTileSprite = null;
 		return ts;
 	}
+	@Override
 	public boolean hasTileSprite(){
 		return (this.mTileSprite != null);
 	}

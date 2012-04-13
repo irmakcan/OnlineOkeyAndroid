@@ -7,6 +7,9 @@ public class Constants {
 	public static final float TILE_WIDTH = 56;
 	public static final float TILE_HEIGHT = 84;
 	
+	public static final float TILE_PADDING_X = 5;
+	public static final float TILE_PADDING_Y = 5;
+	
 	public static final float FRAGMENT_WIDTH = TILE_WIDTH;
 	public static final float FRAGMENT_HEIGHT = TILE_HEIGHT + 10;
 	// ===========================================================

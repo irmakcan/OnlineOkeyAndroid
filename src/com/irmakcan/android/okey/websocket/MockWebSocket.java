@@ -23,11 +23,11 @@ public class MockWebSocket implements WebSocket {
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -57,16 +57,27 @@ public class MockWebSocket implements WebSocket {
 			if(action.equals("ready")){
 				String response = "{\"status\":\"game_start\",\"turn\":\"south\",\"center_count\":48," +
 						"\"hand\":[\"4:0\",\"7:3\",\"6:2\"]," +
-						"\"indicator\":\"4:0\"}";
-				byte[] resp = response.getBytes("UTF-8");
-				Byte[] r = new Byte[resp.length];
-				for(int i=0;i<resp.length;i++){
-					r[i] = resp[i];
+						"\"indicator\":\"4:1\"}";
+
+				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
+			} else if (action.equals("draw_tile")){
+				final boolean isCenter = json.getBoolean("center");
+				if(isCenter){
+					String response = "{\"action\":\"draw_tile\",\"tile\":\"5:0\",\"turn\":\"south\",\"center_count\":47}";
+
+					this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
+				}else{
+					String response = "{\"action\":\"draw_tile\",\"tile\":\"5:0\",\"turn\":\"south\",\"center_count\":48}";
+
+					this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 				}
-				
-				this.mEventHandler.onMessage(new WebSocketMessage(r));
+			} else if (action.equals("throw_tile")){
+				final String tile = json.getString("tile");
+				String response = "{\"action\":\"throw_tile\",\"tile\":\"" + tile + "\",\"turn\":\"east\"}";
+
+				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 			}
-	//		this.mEventHandler.onMessage(message);
+			//		this.mEventHandler.onMessage(message);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
@@ -87,11 +98,18 @@ public class MockWebSocket implements WebSocket {
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	
+	private Byte[] getByteArray(final String pString) throws UnsupportedEncodingException{
+		byte[] resp = pString.getBytes("UTF-8");
+		Byte[] r = new Byte[resp.length];
+		for(int i=0;i<resp.length;i++){
+			r[i] = resp[i];
+		}
+		return r;
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
 
-	
+
 
 }

@@ -1,6 +1,6 @@
 package com.irmakcan.android.okey.gui;
 
-public interface IPendingOperation {
+public interface IHolder {
 	// ===========================================================
 	// Final Fields
 	// ===========================================================
@@ -8,6 +8,8 @@ public interface IPendingOperation {
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	public void cancelPendingOperation();
-	public void pendingOperationSuccess(Object o);
+	public void addTileSprite(final TileSprite pTileSprite);
+	public TileSprite getTileSprite();
+	public TileSprite removeTileSprite();
+	public boolean hasTileSprite();
 }

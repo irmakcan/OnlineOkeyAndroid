@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.irmakcan.android.okey.gui.BlankTileSprite;
 import com.irmakcan.android.okey.gui.Board;
 import com.irmakcan.android.okey.gui.Constants;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
@@ -186,7 +187,6 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		webSocket.setEventHandler(mWebSocketEventHandler);
 
-		// TODO
 		try {
 			JSONObject json = new JSONObject().put("action", "ready");
 			webSocket.send(json.toString());
@@ -201,7 +201,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	// ===========================================================
 	
 	private TileSprite createNewTileSprite(final Tile pTile) {
-		return new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager, this.mScene);
+		return new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager);
 	}
 	
 	// ===========================================================
@@ -220,7 +220,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			Log.v(LOG_TAG, "OkeyGame Message received: " + message.getText());
 			try {
 				final JSONObject json = new JSONObject(message.getText());
-				final String status =json.getString("status");
+				final String status = json.getString("status");
 				if(status.equals("error")){
 					
 					final String errorMessage = json.getString("message");
@@ -240,14 +240,37 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					// { "action":"throw_tile", "tile":"2:2" }
 				} else if(status.equals("draw_tile")){
 					// {"action":"draw_tile","tile":"8:0","turn":"east","center_count":47}
+					String rawTile = json.getString("tile");
+					Tile tile = null;
+					if(rawTile != null){
+						tile = Tile.fromString(rawTile);
+					}
+					String rawTurn = json.getString("turn");
+					Position position = Position.fromString(rawTurn);
+					int centerCount = json.getInt("center_count");
+					
+					// Run on ui thread ??
+					if(mTableManager.getPosition() == position){
+						mTableManager.pendingOperationSuccess(tile);
+					} else {
+						if(mTableManager.getCenterCount() == centerCount){ // Drawn from corner
+							CornerTileStackRectangle tileStack = mTableManager.getCornerStack(TableCorner.previousCornerFromPosition(position));
+							TileSprite tileSprite = tileStack.pop();
+							tileSprite.dispose();
+							//mScene.unregisterTouchArea(tileSprite); TODO test
+							tileSprite.detachSelf();
+						} else { // Drawn from center
+							// TODO
+						}
+					}
 				} else if(status.equals("new_user")){
 					// {"status":"new_user","position":"west","username":"irmak4"}
 				} else if(status.equals("user_leave")){
 					// {"status":"user_leave","position":"west"}
 				} else if(status.equals("game_start")){
 					// {"status":"game_start","turn":"south","center_count":48,"hand":["4:0","7:3",...,"6:2"],"indicator":"4:0"}
-					Position turn = Position.fromString(json.getString("turn")); // TODO
-					int centerCount = json.getInt("center_count"); // TODO
+					final Position turn = Position.fromString(json.getString("turn"));
+					final int centerCount = json.getInt("center_count");
 					JSONArray jsonHand = json.getJSONArray("hand");
 					final List<Tile> userHand = new ArrayList<Tile>();
 					for(int i=0;i < jsonHand.length();i++){
@@ -258,6 +281,19 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					OnlineOkeyClientActivity.this.runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
+							TileSprite indicatorSprite = createNewTileSprite(indicator);
+							indicatorSprite.setPosition(CAMERA_WIDTH/2 - (indicatorSprite.getWidth() + Constants.TILE_PADDING_X), 
+									(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2);
+							mScene.attachChild(indicatorSprite);
+							// CenterTiles TODO
+							BlankTileSprite blankTileSprite = new BlankTileSprite(
+									CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
+									(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
+									mTileTextureRegion, getVertexBufferObjectManager(), mTableManager);
+							mScene.registerTouchArea(blankTileSprite);
+							blankTileSprite.enableTouch();
+							mScene.attachChild(blankTileSprite);
+							
 							for(Tile tile : userHand){
 								TileSprite ts = createNewTileSprite(tile);
 								mScene.registerTouchArea(ts);
@@ -265,6 +301,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 								mScene.attachChild(ts);
 								mBoard.addChild(ts);
 							}
+							mTableManager.setTurn(turn);
+							mTableManager.setCenterCount(centerCount);
 						}
 					});
 				} else {

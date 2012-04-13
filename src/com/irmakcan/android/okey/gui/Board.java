@@ -4,11 +4,14 @@ import org.andengine.entity.primitive.Rectangle;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import android.util.Log;
+
 public class Board extends Rectangle {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 	private static final int FRAGMENT_PER_LANE = 12;
+	private static final String LOG_TAG = "Board";
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -91,6 +94,31 @@ public class Board extends Rectangle {
 			return false;
 		}
 		bf.addTileSprite(pTileSprite);
+		return true;
+	}
+	
+	public boolean addChild(final TileSprite pTileSprite, final float pX, final float pY){
+		Log.v(LOG_TAG, "pX: " + pX + " pY: " + pY);
+		BoardFragment[] lane;
+		if(pY < Constants.FRAGMENT_HEIGHT){
+			Log.v(LOG_TAG, "1st lane");
+			lane = this.mLane1;
+		}else{
+			Log.v(LOG_TAG, "2nd lane");
+			lane = this.mLane2;
+		}
+		
+		int column = (int)(pX / Constants.FRAGMENT_WIDTH);
+		if(column < 0){
+			column = 0; 
+		}else if(column >= FRAGMENT_PER_LANE){
+			column = FRAGMENT_PER_LANE - 1;
+		}
+		if(lane[column].hasTileSprite()){
+			return false;
+		}
+		Log.v(LOG_TAG, "Column: " + column);
+		lane[column].addTileSprite(pTileSprite);
 		return true;
 	}
 	// ===========================================================
