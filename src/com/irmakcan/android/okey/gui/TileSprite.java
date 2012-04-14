@@ -14,7 +14,7 @@ import android.util.Log;
 import com.irmakcan.android.okey.model.TableManager;
 import com.irmakcan.android.okey.model.Tile;
 
-public class TileSprite extends Sprite implements IPendingOperation{
+public class TileSprite extends Sprite {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -67,7 +67,7 @@ public class TileSprite extends Sprite implements IPendingOperation{
 		if(this.mTouchEnabled){
 			switch (pSceneTouchEvent.getAction()) {
 			case TouchEvent.ACTION_MOVE:
-				Log.v("TileSprite", "x: " + pSceneTouchEvent.getX() + " y: " + pSceneTouchEvent.getY());
+//				Log.v("TileSprite", "x: " + pSceneTouchEvent.getX() + " y: " + pSceneTouchEvent.getY());
 				this.setPosition(pSceneTouchEvent.getX() - this.getWidth() / 2, pSceneTouchEvent.getY() - this.getHeight()/2); break;
 			case TouchEvent.ACTION_DOWN:
 				this.mOldX = this.getX();
@@ -81,16 +81,18 @@ public class TileSprite extends Sprite implements IPendingOperation{
 					final Board board = mTableManager.getBoard();
 					boolean success = board.addChild(this, (pSceneTouchEvent.getX() - board.getX()), (pSceneTouchEvent.getY() - board.getY()));
 					if(!success){
-						cancelPendingOperation();
+//						cancelPendingOperation();
+						this.setPosition(mOldX, mOldY);
 					}else{
 						// TODO remove from board fragment
 					}
 				}else if(this.collidesWith(mTableManager.getNextCornerStack())){
 					Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + "centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
+					this.mTableManager.throwTile(mThrowPendingOperation, this.getTile());
 //				}else if(this.collidesWith(mTableManager.getCenterStack())){ // Throw to finish
 
 				}else{
-					this.cancelPendingOperation();// Send it back where it comes from
+					this.setPosition(mOldX, mOldY);// Send it back where it comes from
 				}
 				this.setZIndex(0);
 				this.getParent().sortChildren();
@@ -102,14 +104,14 @@ public class TileSprite extends Sprite implements IPendingOperation{
 		return true;
 	}
 
-	@Override
-	public void cancelPendingOperation() {
-		this.setPosition(mOldX, mOldY);
-	}
-	@Override
-	public void pendingOperationSuccess(Object o) {
-		// TODO
-	}
+//	@Override
+//	public void cancelPendingOperation() {
+//		this.setPosition(mOldX, mOldY);
+//	}
+//	@Override
+//	public void pendingOperationSuccess(Object o) {
+//		// TODO
+//	}
 
 	// ===========================================================
 	// Methods
@@ -123,4 +125,16 @@ public class TileSprite extends Sprite implements IPendingOperation{
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
+	private IPendingOperation mThrowPendingOperation = new IPendingOperation() {
+		@Override
+		public void pendingOperationSuccess(Object o) {
+			CornerTileStackRectangle tileStack = (CornerTileStackRectangle)o;
+			TileSprite.this.disableTouch();
+			tileStack.push(TileSprite.this);
+		}
+		@Override
+		public void cancelPendingOperation() {
+			TileSprite.this.setPosition(mOldX, mOldY);
+		}
+	};
 }

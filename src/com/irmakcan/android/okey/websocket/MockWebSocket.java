@@ -60,20 +60,22 @@ public class MockWebSocket implements WebSocket {
 						"\"indicator\":\"4:1\"}";
 
 				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
+				response = "{\"status\":\"throw_tile\",\"tile\":\"2:3\",\"turn\":\"south\"}";
+				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 			} else if (action.equals("draw_tile")){
 				final boolean isCenter = json.getBoolean("center");
 				if(isCenter){
-					String response = "{\"action\":\"draw_tile\",\"tile\":\"5:0\",\"turn\":\"south\",\"center_count\":47}";
+					String response = "{\"status\":\"draw_tile\",\"tile\":\"5:0\",\"turn\":\"south\",\"center_count\":47}";
 
 					this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 				}else{
-					String response = "{\"action\":\"draw_tile\",\"tile\":\"5:0\",\"turn\":\"south\",\"center_count\":48}";
+					String response = "{\"status\":\"draw_tile\",\"tile\":\"5:0\",\"turn\":\"south\",\"center_count\":48}";
 
 					this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 				}
 			} else if (action.equals("throw_tile")){
 				final String tile = json.getString("tile");
-				String response = "{\"action\":\"throw_tile\",\"tile\":\"" + tile + "\",\"turn\":\"east\"}";
+				String response = "{\"status\":\"throw_tile\",\"tile\":\"" + tile + "\",\"turn\":\"east\"}";
 
 				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 			}

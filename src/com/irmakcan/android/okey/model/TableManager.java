@@ -6,6 +6,8 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.irmakcan.android.okey.gui.Board;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
 import com.irmakcan.android.okey.gui.IPendingOperation;
@@ -48,7 +50,7 @@ public class TableManager implements IPendingOperation {
 	public Board getBoard() {
 		return this.mBoard;
 	}
-	public Position getPosition() {
+	public Position getUserPosition() {
 		return this.mPosition;
 	}
 	public CornerTileStackRectangle getNextCornerStack(){
@@ -91,7 +93,10 @@ public class TableManager implements IPendingOperation {
 	}
 	@Override
 	public void pendingOperationSuccess(Object o) {
-		
+		if(this.mIPendingOperation != null){
+			this.mIPendingOperation.pendingOperationSuccess(o);
+			this.mIPendingOperation = null;
+		}
 	}
 	// ===========================================================
 	// Methods
@@ -108,16 +113,33 @@ public class TableManager implements IPendingOperation {
 	}
 	
 	public void drawCenterTile(IPendingOperation pIPendingOperation) {
-		this.mIPendingOperation = pIPendingOperation;
+		if(!this.setPendingOperation(pIPendingOperation)){
+			pIPendingOperation.cancelPendingOperation();
+			return;
+		}
 		if(this.mTurn == this.mPosition){
 			try {
 				JSONObject json = new JSONObject().put("action", "draw_tile").put("center", true);
 				WebSocketProvider.getWebSocket().send(json.toString());
-			} catch (WebSocketException e) {
-				e.printStackTrace();
-			} catch (JSONException e) {
-				e.printStackTrace();
 			} catch (Exception e){
+				e.printStackTrace();
+				this.cancelPendingOperation();
+			}
+		} else {
+			this.cancelPendingOperation();
+		}
+	}
+	public void throwTile(final IPendingOperation pIPendingOperation, final Tile pTile) {
+		if(!this.setPendingOperation(pIPendingOperation)){
+			pIPendingOperation.cancelPendingOperation();
+			return;
+		}
+		if(this.mTurn == this.mPosition){
+			try {
+				JSONObject json = new JSONObject().put("action", "throw_tile").put("tile", pTile.toString());
+				WebSocketProvider.getWebSocket().send(json.toString());
+			} catch (Exception e){
+				e.printStackTrace();
 				this.cancelPendingOperation();
 			}
 		} else {

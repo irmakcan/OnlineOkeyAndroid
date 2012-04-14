@@ -29,7 +29,10 @@ public class Tile {
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+	@Override
+	public String toString() {
+		return this.getValue() + ":" + this.getTileColor().getColorId();
+	}
 	// ===========================================================
 	// Methods
 	// ===========================================================

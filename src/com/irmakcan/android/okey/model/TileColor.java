@@ -30,6 +30,9 @@ public enum TileColor {
 	public Color getColor(){
 		return this.mColor;
 	}
+	public int getColorId() {
+		return this.mColorId;
+	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================

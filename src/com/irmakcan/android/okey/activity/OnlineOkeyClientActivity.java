@@ -237,7 +237,32 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 						}
 					});
 				} else if(status.equals("throw_tile")){
-					// { "action":"throw_tile", "tile":"2:2" }
+					// {"action":"throw_tile","turn":"east","tile":"2:2"}
+					Log.v(LOG_TAG, "Action: throw_tile");
+					String rawTile = json.getString("tile");
+					final Tile tile = Tile.fromString(rawTile);
+					String rawTurn = json.getString("turn");
+					final Position turn = Position.fromString(rawTurn);
+					final TableCorner prevCorner = TableCorner.previousCornerFromPosition(turn);
+					if(TableCorner.nextCornerFromPosition(mTableManager.getUserPosition()) == prevCorner){ // Tile thrown by this user
+						mTableManager.pendingOperationSuccess(mTableManager.getCornerStack(prevCorner));
+					} else {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								TileSprite tileSprite = createNewTileSprite(tile);
+								if(turn == mTableManager.getUserPosition()){
+									mScene.registerTouchArea(tileSprite);
+									tileSprite.enableTouch();
+								}
+								mScene.attachChild(tileSprite);
+								mTableManager.getCornerStack(prevCorner).push(tileSprite);
+								mTableManager.setTurn(turn);
+							}
+						});
+					}
+					
+					
 				} else if(status.equals("draw_tile")){
 					// {"action":"draw_tile","tile":"8:0","turn":"east","center_count":47}
 					String rawTile = json.getString("tile");
@@ -250,7 +275,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					int centerCount = json.getInt("center_count");
 					
 					// Run on ui thread ??
-					if(mTableManager.getPosition() == position){
+					if(mTableManager.getUserPosition() == position){
 						mTableManager.pendingOperationSuccess(tile);
 					} else {
 						if(mTableManager.getCenterCount() == centerCount){ // Drawn from corner
