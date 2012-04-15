@@ -50,7 +50,7 @@ public class MockWebSocket implements WebSocket {
 
 	@Override
 	public void send(String data) throws WebSocketException {
-		Log.v(LOG_TAG, "send called");
+		Log.v(LOG_TAG, "Message sent: " + data);
 		try{
 			JSONObject json = new JSONObject(data);
 			final String action = json.getString("action");

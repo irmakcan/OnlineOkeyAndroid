@@ -2,6 +2,8 @@ package com.irmakcan.android.okey.model;
 
 import java.io.Serializable;
 
+import com.google.gson.annotations.SerializedName;
+
 public class User implements Serializable {
 	// ===========================================================
 	// Constants
@@ -10,8 +12,8 @@ public class User implements Serializable {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private String mUserName;
-	private Position mPosition;
+	@SerializedName("name") private String mUserName;
+	@SerializedName("position") private Position mPosition;
 	// ===========================================================
 	// Constructors
 	// ===========================================================

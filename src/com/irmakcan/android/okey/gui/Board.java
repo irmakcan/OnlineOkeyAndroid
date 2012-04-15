@@ -83,6 +83,7 @@ public class Board extends Rectangle {
 			throw new IllegalStateException("Board is full. (Shouldn't be)"); 
 		}
 		bf.addTileSprite(pTileSprite);
+		pTileSprite.setIHolder(bf);
 		//pTileSprite.setPosition(this.getX() + bf.getX(), this.getY() + bf.getY());
 	}
 	public boolean addChild(final TileSprite pTileSprite, int pLocation) { // TODO shift tiles
@@ -97,8 +98,38 @@ public class Board extends Rectangle {
 		return true;
 	}
 	
-	public boolean addChild(final TileSprite pTileSprite, final float pX, final float pY){
+	public synchronized BoardFragment addChild(final TileSprite pTileSprite, final float pX, final float pY){
 		Log.v(LOG_TAG, "pX: " + pX + " pY: " + pY);
+		BoardFragment[] lane = getLane(pY);
+		int column = getColumn(pX);
+		if(lane[column].hasTileSprite()){
+			return null;
+		}
+		lane[column].addTileSprite(pTileSprite);
+		return lane[column];
+	}
+	
+	public boolean isEmpty(final float pX, final float pY){
+		Log.v(LOG_TAG, "pX: " + pX + " pY: " + pY);
+		BoardFragment[] lane = getLane(pY);
+		int column = getColumn(pX);
+		if(lane[column].hasTileSprite()){
+			return false;
+		}
+		return true;
+	}
+	
+	private int getColumn(final float pX){
+		int column = (int)(pX / Constants.FRAGMENT_WIDTH);
+		if(column < 0){
+			column = 0; 
+		}else if(column >= FRAGMENT_PER_LANE){
+			column = FRAGMENT_PER_LANE - 1;
+		}
+		Log.v(LOG_TAG, "Column: " + column);
+		return column;
+	}
+	private BoardFragment[] getLane(final float pY){
 		BoardFragment[] lane;
 		if(pY < Constants.FRAGMENT_HEIGHT){
 			Log.v(LOG_TAG, "1st lane");
@@ -107,19 +138,7 @@ public class Board extends Rectangle {
 			Log.v(LOG_TAG, "2nd lane");
 			lane = this.mLane2;
 		}
-		
-		int column = (int)(pX / Constants.FRAGMENT_WIDTH);
-		if(column < 0){
-			column = 0; 
-		}else if(column >= FRAGMENT_PER_LANE){
-			column = FRAGMENT_PER_LANE - 1;
-		}
-		if(lane[column].hasTileSprite()){
-			return false;
-		}
-		Log.v(LOG_TAG, "Column: " + column);
-		lane[column].addTileSprite(pTileSprite);
-		return true;
+		return lane;
 	}
 	// ===========================================================
 	// Inner and Anonymous Classes

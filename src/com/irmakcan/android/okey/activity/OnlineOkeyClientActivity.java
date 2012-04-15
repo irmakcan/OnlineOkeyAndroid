@@ -268,7 +268,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					String rawTile = json.getString("tile");
 					Tile tile = null;
 					if(rawTile != null){
-						tile = Tile.fromString(rawTile);
+						tile = Tile.fromString(rawTile); // TODO
 					}
 					String rawTurn = json.getString("turn");
 					Position position = Position.fromString(rawTurn);
@@ -276,7 +276,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					
 					// Run on ui thread ??
 					if(mTableManager.getUserPosition() == position){
-						mTableManager.pendingOperationSuccess(tile);
+						mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
 					} else {
 						if(mTableManager.getCenterCount() == centerCount){ // Drawn from corner
 							CornerTileStackRectangle tileStack = mTableManager.getCornerStack(TableCorner.previousCornerFromPosition(position));

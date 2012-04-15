@@ -39,11 +39,11 @@ public class BoardFragment extends Sprite implements IHolder {
 		if(this.mTileSprite != null){
 			throw new IllegalStateException("There is already a tile");
 		}
-		IHolder holder = pTileSprite.getIHolder();
-		if(holder != null){
-			holder.removeTileSprite();
-		}
-		pTileSprite.setIHolder(this);
+//		IHolder holder = pTileSprite.getIHolder();
+//		if(holder != null){
+//			holder.removeTileSprite();
+//		}
+//		pTileSprite.setIHolder(this);
 		this.mTileSprite = pTileSprite;
 		pTileSprite.setPosition(this.getParent().getX() + this.getX(), 
 				this.getParent().getY() + this.getY() + (this.getHeight() - pTileSprite.getHeight())); // Set position

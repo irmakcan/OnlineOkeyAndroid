@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -27,7 +26,9 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.irmakcan.android.okey.R;
+import com.irmakcan.android.okey.gson.BaseResponse;
 import com.irmakcan.android.okey.http.task.LoginAsyncTask;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
@@ -199,20 +200,14 @@ public class LoginClientActivity extends Activity {
 		@Override
 		public void onMessage(WebSocketMessage message) {
 			Log.v(LOG_TAG, "Message received: " + message.getText());
-			try {
-				Log.v(LOG_TAG, message.getText());
-				final JSONObject json = new JSONObject(message.getText());
-				String status =	json.getString("status");
-				if(status.equals("success")){
-					Log.v(LOG_TAG, "auth success");
-					Intent i = new Intent(LoginClientActivity.this, OkeyLoungeActivity.class);
-					startActivity(i);
-				} else {
-					// TODO
-				}
-			} catch (JSONException e) {
-				// Messaging error TODO
-				e.printStackTrace();
+			Gson gson = new Gson();
+			BaseResponse baseResponse = gson.fromJson(message.getText(), BaseResponse.class);
+			if(baseResponse.getStatus().equals("success")){
+				Log.v(LOG_TAG, "auth success");
+				Intent i = new Intent(LoginClientActivity.this, OkeyLoungeActivity.class);
+				startActivity(i);
+			}else{
+				// TODO
 			}
 		}
 		@Override

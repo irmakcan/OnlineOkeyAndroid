@@ -1,8 +1,16 @@
-package com.irmakcan.android.okey.model;
+package com.irmakcan.android.okey.gson;
 
-import com.google.gson.annotations.SerializedName;
+import java.lang.reflect.Type;
+import java.util.List;
 
-public class Room {
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.irmakcan.android.okey.model.Position;
+import com.irmakcan.android.okey.model.User;
+
+public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -10,32 +18,26 @@ public class Room {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	@SerializedName("room_name") private String mName;
-	@SerializedName("count") private int mPlayerCount;
+	private Position position;
+	private List<User> users;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public Room(String pName, int pPlayerCount) {
-		this.mName = pName;
-		this.mPlayerCount = pPlayerCount;
-	}
+	
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public int getPlayerCount() {
-		return mPlayerCount;
+	public Position getPosition() {
+		return position;
 	}
-
-	public void setPlayerCount(int pPlayerCount) {
-		this.mPlayerCount = pPlayerCount;
+	public void setPosition(Position position) {
+		this.position = position;
 	}
-
-	public String getName() {
-		return this.mName;
+	public List<User> getUsers() {
+		return users;
 	}
-
-	public void setName(String pName) {
-		this.mName = pName;
+	public void setUsers(List<User> users) {
+		this.users = users;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
@@ -48,10 +50,11 @@ public class Room {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-
-	
-	
-	
-
-	
+	public static class PositionDeserializer implements JsonDeserializer<Position>{
+		@Override
+		public Position deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			return Position.fromString(json.getAsString());
+		}
+		
+	}
 }

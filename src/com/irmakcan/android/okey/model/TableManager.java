@@ -3,17 +3,14 @@ package com.irmakcan.android.okey.model;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.irmakcan.android.okey.gui.Board;
+import com.irmakcan.android.okey.gui.BoardFragment;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
 import com.irmakcan.android.okey.gui.IPendingOperation;
+import com.irmakcan.android.okey.gui.TileSprite;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
-
-import de.roderick.weberknecht.WebSocketException;
 
 
 public class TableManager implements IPendingOperation {
@@ -129,6 +126,23 @@ public class TableManager implements IPendingOperation {
 			this.cancelPendingOperation();
 		}
 	}
+	public void drawCornerTile(IPendingOperation pIPendingOperation) {
+		if(!this.setPendingOperation(pIPendingOperation)){
+			pIPendingOperation.cancelPendingOperation();
+			return;
+		}
+		if(this.mTurn == this.mPosition){
+			try {
+				JSONObject json = new JSONObject().put("action", "draw_tile").put("center", false);
+				WebSocketProvider.getWebSocket().send(json.toString());
+			} catch (Exception e){
+				e.printStackTrace();
+				this.cancelPendingOperation();
+			}
+		} else {
+			this.cancelPendingOperation();
+		}
+	}
 	public void throwTile(final IPendingOperation pIPendingOperation, final Tile pTile) {
 		if(!this.setPendingOperation(pIPendingOperation)){
 			pIPendingOperation.cancelPendingOperation();
@@ -146,9 +160,22 @@ public class TableManager implements IPendingOperation {
 			this.cancelPendingOperation();
 		}
 	}
+	public void moveTile(final IPendingOperation pIPendingOperation, final TileSprite pTileSprite, final float pX, final float pY) {
+		if(this.mBoard.isEmpty(pX, pY)){
+			BoardFragment bf = this.mBoard.addChild(pTileSprite, pX, pY);
+			if(bf != null){
+				pIPendingOperation.pendingOperationSuccess(bf);
+			}else{
+				pIPendingOperation.cancelPendingOperation();
+			}
+		}else{
+			pIPendingOperation.cancelPendingOperation();
+		}
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
+	
 	
 	
 	

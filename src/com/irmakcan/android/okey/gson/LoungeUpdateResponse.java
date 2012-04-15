@@ -1,8 +1,11 @@
-package com.irmakcan.android.okey.model;
+package com.irmakcan.android.okey.gson;
+
+import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
+import com.irmakcan.android.okey.model.Room;
 
-public class Room {
+public class LoungeUpdateResponse extends BaseResponse {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -10,32 +13,26 @@ public class Room {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	@SerializedName("room_name") private String mName;
-	@SerializedName("count") private int mPlayerCount;
+	@SerializedName("player_count") private int playerCount;
+	@SerializedName("list") private List<Room> roomList;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public Room(String pName, int pPlayerCount) {
-		this.mName = pName;
-		this.mPlayerCount = pPlayerCount;
-	}
+	
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
 	public int getPlayerCount() {
-		return mPlayerCount;
+		return playerCount;
 	}
-
-	public void setPlayerCount(int pPlayerCount) {
-		this.mPlayerCount = pPlayerCount;
+	public void setPlayerCount(int playerCount) {
+		this.playerCount = playerCount;
 	}
-
-	public String getName() {
-		return this.mName;
+	public List<Room> getRoomList() {
+		return roomList;
 	}
-
-	public void setName(String pName) {
-		this.mName = pName;
+	public void setRoomList(List<Room> roomList) {
+		this.roomList = roomList;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
@@ -48,10 +45,4 @@ public class Room {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-
-	
-	
-	
-
-	
 }

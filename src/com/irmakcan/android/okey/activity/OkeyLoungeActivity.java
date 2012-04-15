@@ -1,10 +1,7 @@
 package com.irmakcan.android.okey.activity;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
@@ -26,7 +23,13 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.irmakcan.android.okey.R;
+import com.irmakcan.android.okey.gson.BaseResponse;
+import com.irmakcan.android.okey.gson.ErrorResponse;
+import com.irmakcan.android.okey.gson.JoinRoomResponse;
+import com.irmakcan.android.okey.gson.LoungeUpdateResponse;
 import com.irmakcan.android.okey.model.GameInformation;
 import com.irmakcan.android.okey.model.Player;
 import com.irmakcan.android.okey.model.Position;
@@ -43,27 +46,27 @@ public class OkeyLoungeActivity extends Activity{
 	// Constants
 	// ===========================================================
 	protected static final String LOG_TAG = "OkeyLoungeActivity";
-	
+
 	private static final int ROOM_PER_COLUMN = 4;
-	
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	
+
 	private Handler mHandler;
 	private TableLayout mRoomTableLayout;
 	private TextView mPlayerCountView;
 
 	private String mQueuedRoomName;
-	
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -71,18 +74,18 @@ public class OkeyLoungeActivity extends Activity{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.lounge_screen);
-		
+
 		mHandler = new Handler();
-		
+
 		this.mRoomTableLayout = (TableLayout)findViewById(R.id.loungescreen_tables);
-		
+
 		Button refreshButton = (Button)findViewById(R.id.loungescreen_button_refresh);
 		refreshButton.setOnClickListener(mRefreshAction);
 		Button createButton = (Button)findViewById(R.id.loungescreen_button_create);
 		createButton.setOnClickListener(mCreateAction);
 		this.mPlayerCountView = (TextView)findViewById(R.id.loungescreen_textview_player_count);
-		
-		
+
+
 		/* -- should be onStart ? -- */
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		webSocket.setEventHandler(mWebSocketEventHandler);
@@ -106,7 +109,7 @@ public class OkeyLoungeActivity extends Activity{
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void sendCreateRoomRequest(String pRoomName){
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		try {
@@ -118,7 +121,7 @@ public class OkeyLoungeActivity extends Activity{
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void sendJoinRoomRequest(String pRoomName){
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		try {
@@ -130,12 +133,12 @@ public class OkeyLoungeActivity extends Activity{
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void generateRoomList(List<Room> pRoomList){
 		this.mRoomTableLayout.removeAllViews();
-		
+
 		final int rowCount = (pRoomList.size() / ROOM_PER_COLUMN) + 1;
-		
+
 		for(int i=0;i < rowCount;i++){
 			int start = i*ROOM_PER_COLUMN;
 			int end = start + ROOM_PER_COLUMN;
@@ -143,27 +146,27 @@ public class OkeyLoungeActivity extends Activity{
 				end = pRoomList.size();
 			}
 			List<Room> roomSubList = pRoomList.subList(start, end);
-			
+
 			TableRow tableRow = new TableRow(this);
-	    	for(final Room room : roomSubList){
-	    		
-	    		Button b = new Button(this);
-	    		b.setText(room.getName());
-	    		b.setTextSize(18);
-		        b.setPadding(6, 5, 15, 5);
-		        b.setSingleLine(true);
-		        
-		        b.setOnClickListener(new OnClickListener() {
+			for(final Room room : roomSubList){
+
+				Button b = new Button(this);
+				b.setText(room.getName());
+				b.setTextSize(18);
+				b.setPadding(6, 5, 15, 5);
+				b.setSingleLine(true);
+
+				b.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						sendJoinRoomRequest(room.getName());
 					}
 				});
-		        
-	    		tableRow.addView(b);
-	    	}
-	    	tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-	    	this.mRoomTableLayout.addView(tableRow);
+
+				tableRow.addView(b);
+			}
+			tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+			this.mRoomTableLayout.addView(tableRow);
 		}
 	}
 	// ===========================================================
@@ -178,58 +181,40 @@ public class OkeyLoungeActivity extends Activity{
 		@Override
 		public void onMessage(WebSocketMessage message) {
 			Log.v(LOG_TAG, "Lounge Message received: " + message.getText());
-			try {
-				Log.v(LOG_TAG, message.getText());
-				final JSONObject json = new JSONObject(message.getText());
-				final String status =json.getString("status");
-				if(status.equals("lounge_update")){
-					Log.v(LOG_TAG, "auth success");
-					final int playerCount = json.getInt("player_count");
-					final JSONArray roomJSONArray = json.getJSONArray("list");
-					final List<Room> roomList = new ArrayList<Room>();
-					for(int i=0;i < roomJSONArray.length();i++){
-						final JSONObject roomJSON = roomJSONArray.getJSONObject(i);
-						final String roomName = roomJSON.getString("room_name");
-						final int roomCount = roomJSON.getInt("count");
-						roomList.add(new Room(roomName, roomCount));
+			Gson gson = new Gson();
+			BaseResponse baseResponse = gson.fromJson(message.getText(), BaseResponse.class);
+			String status = baseResponse.getStatus();
+			if(status.equals("lounge_update")){ //{"status":"lounge_update","player_count":5,"list":[{"room_name":"room3","count":1}]}
+				final LoungeUpdateResponse loungeUpdate = gson.fromJson(message.getText(), LoungeUpdateResponse.class);
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						mPlayerCountView.setText("Online players: " + loungeUpdate.getPlayerCount());
+						generateRoomList(loungeUpdate.getRoomList());
 					}
-					mHandler.post(new Runnable() {
-						@Override
-						public void run() {
-							mPlayerCountView.setText("Online players: " + playerCount);
-							generateRoomList(roomList);
-						}
-					});
-					
-				} else if(status.equals("error")){
-					final String errorMessage = json.getString("message");
-					mHandler.post(new Runnable() {
-						@Override
-						public void run() {
-							Toast.makeText(OkeyLoungeActivity.this.getApplicationContext(), errorMessage, Toast.LENGTH_SHORT).show();
-						}
-					});
-				} else if(status.equals("join_room")){
-					Position userPosition = Position.fromString(json.getString("position"));
-					JSONArray usersJSONArray = json.getJSONArray("users");
-					List<User> usersList = new ArrayList<User>();
-					for(int i=0;i<usersJSONArray.length();i++){
-						JSONObject userJSON = usersJSONArray.getJSONObject(i);
-						String name = userJSON.getString("name");
-						Position pos = Position.fromString(userJSON.getString("position"));
-						usersList.add(new User(name, pos));
+				});
+			}else if(status.equals("error")){
+				final ErrorResponse errorResponse = gson.fromJson(message.getText(), ErrorResponse.class);
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(OkeyLoungeActivity.this.getApplicationContext(), errorResponse.getMessage(), Toast.LENGTH_SHORT).show();
 					}
-					
-					Intent i = new Intent(OkeyLoungeActivity.this, OnlineOkeyClientActivity.class);
-					i.putExtra("game_information", new GameInformation(mQueuedRoomName, usersList)); // TODO
-					Player.getPlayer().setPosition(userPosition);
-					startActivity(i);
-				} else {
-					// TODO
+				});
+			}else if(status.equals("join_room")){ // {"status":"join_room","position":"east","users":[{"name":"irmak4","position":"south"}]}
+				gson = new GsonBuilder().registerTypeAdapter(Position.class, new JoinRoomResponse.PositionDeserializer()).create();
+				final JoinRoomResponse joinRoomResponse = gson.fromJson(message.getText(), JoinRoomResponse.class);
+				Log.v(LOG_TAG, "Pos: " + joinRoomResponse.getPosition());
+				for(User u : joinRoomResponse.getUsers()){
+					Log.v(LOG_TAG, "Name: " + u.getUserName() + "Pos: " + u.getPosition());
 				}
-			} catch (JSONException e) {
-				// Messaging error TODO
-				e.printStackTrace();
+
+				Intent i = new Intent(OkeyLoungeActivity.this, OnlineOkeyClientActivity.class);
+				i.putExtra("game_information", new GameInformation(mQueuedRoomName, joinRoomResponse.getUsers())); // TODO
+				Player.getPlayer().setPosition(joinRoomResponse.getPosition());
+				startActivity(i);
+			}else{
+				// TODO
 			}
 		}
 		@Override
@@ -237,7 +222,7 @@ public class OkeyLoungeActivity extends Activity{
 			Log.v(LOG_TAG, "Lounge WebSocket disconnected");
 		}
 	};
-	
+
 	private OnClickListener mRefreshAction = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
@@ -253,27 +238,28 @@ public class OkeyLoungeActivity extends Activity{
 			Context context = OkeyLoungeActivity.this;
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
 			View layout = inflater.inflate(R.layout.room_create_form,
-			                               (ViewGroup) findViewById(R.id.room_create_form_root));
+					(ViewGroup) findViewById(R.id.room_create_form_root));
 
 			final EditText roomNameEditText = (EditText) layout.findViewById(R.id.room_create_form_edittext_roomname);
 
 			builder = new AlertDialog.Builder(context);
 			builder.setTitle("Room Name")
-		       .setPositiveButton("Create Room", new DialogInterface.OnClickListener() {
-		           @Override
-		    	   public void onClick(DialogInterface dialog, int id) {
-		        	   OkeyLoungeActivity.this.sendCreateRoomRequest(roomNameEditText.getText().toString());
-		           }
-		       })
-		       .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-		    	   @Override
-		    	   public void onClick(DialogInterface dialog, int id) {
-		                dialog.cancel();
-		           }
-		       });
+			.setPositiveButton("Create Room", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int id) {
+					OkeyLoungeActivity.this.sendCreateRoomRequest(roomNameEditText.getText().toString());
+				}
+			})
+			.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int id) {
+					dialog.cancel();
+				}
+			});
 			builder.setView(layout);
 			alertDialog = builder.create();
 			alertDialog.show();
 		}
 	};
+
 }

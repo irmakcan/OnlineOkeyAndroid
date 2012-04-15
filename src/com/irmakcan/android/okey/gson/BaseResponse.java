@@ -1,8 +1,6 @@
-package com.irmakcan.android.okey.model;
+package com.irmakcan.android.okey.gson;
 
-import com.google.gson.annotations.SerializedName;
-
-public class Room {
+public class BaseResponse {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -10,33 +8,22 @@ public class Room {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	@SerializedName("room_name") private String mName;
-	@SerializedName("count") private int mPlayerCount;
+	private String status;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public Room(String pName, int pPlayerCount) {
-		this.mName = pName;
-		this.mPlayerCount = pPlayerCount;
-	}
+	
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public int getPlayerCount() {
-		return mPlayerCount;
+	public String getStatus() {
+		return status;
 	}
 
-	public void setPlayerCount(int pPlayerCount) {
-		this.mPlayerCount = pPlayerCount;
+	public void setStatus(String status) {
+		this.status = status;
 	}
-
-	public String getName() {
-		return this.mName;
-	}
-
-	public void setName(String pName) {
-		this.mName = pName;
-	}
+	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -48,10 +35,4 @@ public class Room {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-
-	
-	
-	
-
-	
 }

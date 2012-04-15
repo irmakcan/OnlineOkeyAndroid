@@ -79,13 +79,37 @@ public class TileSprite extends Sprite {
 				if(this.collidesWith(mTableManager.getBoard())){
 					Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + " centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
 					final Board board = mTableManager.getBoard();
-					boolean success = board.addChild(this, (pSceneTouchEvent.getX() - board.getX()), (pSceneTouchEvent.getY() - board.getY()));
-					if(!success){
-//						cancelPendingOperation();
-						this.setPosition(mOldX, mOldY);
+					final float centerX = pSceneTouchEvent.getX() - board.getX();
+					final float centerY = pSceneTouchEvent.getY() - board.getY();
+					if(board.isEmpty(centerX, centerY)){
+						if(mTableManager.getPreviousCornerStack().lastElement() == this){
+							IPendingOperation drawPendingOperation = new IPendingOperation() {
+								@Override
+								public void pendingOperationSuccess(Object o) {
+									CornerTileStackRectangle tileStack = (CornerTileStackRectangle)o;
+									tileStack.pop();
+									mTableManager.moveTile(mMovePendingOperation, TileSprite.this, centerX, centerY);
+								}
+								@Override
+								public void cancelPendingOperation() {
+									TileSprite.this.setPosition(mOldX, mOldY);
+								}
+							};
+							mTableManager.drawCornerTile(drawPendingOperation);
+						}else{ // normal move
+							mTableManager.moveTile(mMovePendingOperation, this, centerX, centerY);
+						}
 					}else{
-						// TODO remove from board fragment
+						this.setPosition(mOldX, mOldY);
 					}
+					
+					
+//					boolean success = board.addChild(this, (pSceneTouchEvent.getX() - board.getX()), (pSceneTouchEvent.getY() - board.getY()));
+//					if(!success){
+////						cancelPendingOperation();
+//					}else{
+//						// TODO remove from board fragment
+//					}
 				}else if(this.collidesWith(mTableManager.getNextCornerStack())){
 					Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + "centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
 					this.mTableManager.throwTile(mThrowPendingOperation, this.getTile());
@@ -125,6 +149,31 @@ public class TileSprite extends Sprite {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
+	private IPendingOperation mMovePendingOperation = new IPendingOperation() {
+		@Override
+		public void pendingOperationSuccess(Object o) {
+			BoardFragment boardFragment = (BoardFragment)o;
+			if(getIHolder() != null){
+				mIHolder.removeTileSprite();
+			}
+			setIHolder(boardFragment);
+		}
+		@Override
+		public void cancelPendingOperation() {
+			TileSprite.this.setPosition(mOldX, mOldY);
+		}
+	};
+	private IPendingOperation mDrawPendingOperation = new IPendingOperation() {
+		@Override
+		public void pendingOperationSuccess(Object o) {
+			CornerTileStackRectangle tileStack = (CornerTileStackRectangle)o;
+			tileStack.pop();
+		}
+		@Override
+		public void cancelPendingOperation() {
+			TileSprite.this.setPosition(mOldX, mOldY);
+		}
+	};
 	private IPendingOperation mThrowPendingOperation = new IPendingOperation() {
 		@Override
 		public void pendingOperationSuccess(Object o) {
