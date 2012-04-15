@@ -30,6 +30,7 @@ import com.irmakcan.android.okey.gson.BaseResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.JoinRoomResponse;
 import com.irmakcan.android.okey.gson.LoungeUpdateResponse;
+import com.irmakcan.android.okey.gson.ModelDeserializer;
 import com.irmakcan.android.okey.model.GameInformation;
 import com.irmakcan.android.okey.model.Player;
 import com.irmakcan.android.okey.model.Position;
@@ -202,7 +203,7 @@ public class OkeyLoungeActivity extends Activity{
 					}
 				});
 			}else if(status.equals("join_room")){ // {"status":"join_room","position":"east","users":[{"name":"irmak4","position":"south"}]}
-				gson = new GsonBuilder().registerTypeAdapter(Position.class, new JoinRoomResponse.PositionDeserializer()).create();
+				gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer()).create();
 				final JoinRoomResponse joinRoomResponse = gson.fromJson(message.getText(), JoinRoomResponse.class);
 				Log.v(LOG_TAG, "Pos: " + joinRoomResponse.getPosition());
 				for(User u : joinRoomResponse.getUsers()){

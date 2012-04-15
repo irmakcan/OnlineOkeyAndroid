@@ -1,11 +1,15 @@
 package com.irmakcan.android.okey.gson;
 
-import java.util.List;
+import java.lang.reflect.Type;
 
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.irmakcan.android.okey.model.Position;
-import com.irmakcan.android.okey.model.User;
+import com.irmakcan.android.okey.model.Tile;
 
-public class JoinRoomResponse extends BaseResponse{
+public class ModelDeserializer {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -13,8 +17,7 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private Position position;
-	private List<User> users;
+	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -22,18 +25,7 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public Position getPosition() {
-		return position;
-	}
-	public void setPosition(Position position) {
-		this.position = position;
-	}
-	public List<User> getUsers() {
-		return users;
-	}
-	public void setUsers(List<User> users) {
-		this.users = users;
-	}
+	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
@@ -41,9 +33,20 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	
+
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-	
+	public static class PositionDeserializer implements JsonDeserializer<Position>{
+		@Override
+		public Position deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			return Position.fromString(json.getAsString());
+		}
+	}
+	public static class TileDeserializer implements JsonDeserializer<Tile>{
+		@Override
+		public Tile deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+			return Tile.fromString(json.getAsString());
+		}
+	}
 }

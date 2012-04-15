@@ -1,11 +1,10 @@
 package com.irmakcan.android.okey.gson;
 
-import java.util.List;
-
+import com.google.gson.annotations.SerializedName;
 import com.irmakcan.android.okey.model.Position;
-import com.irmakcan.android.okey.model.User;
+import com.irmakcan.android.okey.model.Tile;
 
-public class JoinRoomResponse extends BaseResponse{
+public class DrawTileResponse extends BaseResponse{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -13,8 +12,9 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private Position position;
-	private List<User> users;
+	private Position turn;
+	private Tile tile;
+	@SerializedName("center_count") private int centerCount;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -22,17 +22,23 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public Position getPosition() {
-		return position;
+	public Position getTurn() {
+		return turn;
 	}
-	public void setPosition(Position position) {
-		this.position = position;
+	public void setTurn(Position turn) {
+		this.turn = turn;
 	}
-	public List<User> getUsers() {
-		return users;
+	public Tile getTile() {
+		return tile;
 	}
-	public void setUsers(List<User> users) {
-		this.users = users;
+	public void setTile(Tile tile) {
+		this.tile = tile;
+	}
+	public int getCenterCount() {
+		return centerCount;
+	}
+	public void setCenterCount(int centerCount) {
+		this.centerCount = centerCount;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
@@ -45,5 +51,4 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-	
 }

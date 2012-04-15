@@ -2,10 +2,11 @@ package com.irmakcan.android.okey.gson;
 
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
 import com.irmakcan.android.okey.model.Position;
-import com.irmakcan.android.okey.model.User;
+import com.irmakcan.android.okey.model.Tile;
 
-public class JoinRoomResponse extends BaseResponse{
+public class GameStartResponse extends BaseResponse {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -13,8 +14,10 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	private Position position;
-	private List<User> users;
+	private Position turn;
+	@SerializedName("center_count") private int centerCount;
+	@SerializedName("hand") private List<Tile> userHand;
+	private Tile indicator;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -22,17 +25,29 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public Position getPosition() {
-		return position;
+	public Position getTurn() {
+		return turn;
 	}
-	public void setPosition(Position position) {
-		this.position = position;
+	public void setTurn(Position turn) {
+		this.turn = turn;
 	}
-	public List<User> getUsers() {
-		return users;
+	public int getCenterCount() {
+		return centerCount;
 	}
-	public void setUsers(List<User> users) {
-		this.users = users;
+	public void setCenterCount(int centerCount) {
+		this.centerCount = centerCount;
+	}
+	public List<Tile> getUserHand() {
+		return userHand;
+	}
+	public void setUserHand(List<Tile> userHand) {
+		this.userHand = userHand;
+	}
+	public Tile getIndicator() {
+		return indicator;
+	}
+	public void setIndicator(Tile indicator) {
+		this.indicator = indicator;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
@@ -45,5 +60,4 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-	
 }
