@@ -239,12 +239,14 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				Log.v(LOG_TAG, throwTileResponse.getStatus() + throwTileResponse.getTile().toString() + throwTileResponse.getTurn().toString());
 				final TableCorner prevCorner = TableCorner.previousCornerFromPosition(throwTileResponse.getTurn());
 
-				if(TableCorner.nextCornerFromPosition(mTableManager.getUserPosition()) == prevCorner){ // Tile thrown by this user
-					mTableManager.pendingOperationSuccess(mTableManager.getCornerStack(prevCorner));
-				} else {
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
+
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						if(TableCorner.nextCornerFromPosition(mTableManager.getUserPosition()) == prevCorner){ // Tile thrown by this user
+							mTableManager.setTurn(throwTileResponse.getTurn());
+							mTableManager.pendingOperationSuccess(mTableManager.getCornerStack(prevCorner));
+						} else {
 							TileSprite tileSprite = createNewTileSprite(throwTileResponse.getTile());
 							if(throwTileResponse.getTurn() == mTableManager.getUserPosition()){
 								mScene.registerTouchArea(tileSprite);
@@ -254,31 +256,46 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 							mTableManager.getCornerStack(prevCorner).push(tileSprite);
 							mTableManager.setTurn(throwTileResponse.getTurn());
 						}
-					});
-				}
+					}
+				});
+
 			} else if(status.equals("draw_tile")){
 				// {"status":"draw_tile","tile":"8:0","turn":"east","center_count":47}
 				gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer())
 						.registerTypeAdapter(Tile.class, new ModelDeserializer.TileDeserializer())
 						.create();
 				final DrawTileResponse drawTileResponse = gson.fromJson(message.getText(), DrawTileResponse.class);
-				Log.v(LOG_TAG, drawTileResponse.getStatus() + drawTileResponse.getTile().toString() + drawTileResponse.getTurn().toString() + drawTileResponse.getCenterCount());
+				Log.v(LOG_TAG, drawTileResponse.getStatus() + drawTileResponse.getTurn().toString() + drawTileResponse.getCenterCount());
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						if(mTableManager.getUserPosition() == drawTileResponse.getTurn()){
-							mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
+						if(mTableManager.getUserPosition() == drawTileResponse.getTurn()){ // Drawn by user (center or corner)
+							if(mTableManager.getCenterCount() == drawTileResponse.getCenterCount()){
+								mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
+							}else{
+								TileSprite tileSprite = createNewTileSprite(drawTileResponse.getTile());
+								mScene.registerTouchArea(tileSprite);
+								tileSprite.enableTouch();
+								mScene.attachChild(tileSprite);
+								mTableManager.pendingOperationSuccess(tileSprite);
+							}
 						} else {
 							if(mTableManager.getCenterCount() == drawTileResponse.getCenterCount()){ // Drawn from corner
 								CornerTileStackRectangle tileStack = mTableManager.getCornerStack(TableCorner.previousCornerFromPosition(drawTileResponse.getTurn()));
-								TileSprite tileSprite = tileStack.pop();
+								final TileSprite tileSprite = tileStack.pop();
 								tileSprite.dispose();
 								//mScene.unregisterTouchArea(tileSprite); TODO test
-								tileSprite.detachSelf();
+								runOnUpdateThread(new Runnable() {
+									@Override
+									public void run() {
+										tileSprite.detachSelf();
+									}
+								});
 							} else { // Drawn from center
 								// TODO
 							}
 						}
+						mTableManager.setCenterCount(drawTileResponse.getCenterCount());
 					}
 				});
 

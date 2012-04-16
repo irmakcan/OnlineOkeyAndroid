@@ -146,6 +146,9 @@ public class TileSprite extends Sprite {
 	public void disableTouch() {
 		this.mTouchEnabled = false;
 	}
+	public IPendingOperation getMovePendingOperation() {
+		return mMovePendingOperation;
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
@@ -163,20 +166,10 @@ public class TileSprite extends Sprite {
 			TileSprite.this.setPosition(mOldX, mOldY);
 		}
 	};
-	private IPendingOperation mDrawPendingOperation = new IPendingOperation() {
-		@Override
-		public void pendingOperationSuccess(Object o) {
-			CornerTileStackRectangle tileStack = (CornerTileStackRectangle)o;
-			tileStack.pop();
-		}
-		@Override
-		public void cancelPendingOperation() {
-			TileSprite.this.setPosition(mOldX, mOldY);
-		}
-	};
 	private IPendingOperation mThrowPendingOperation = new IPendingOperation() {
 		@Override
 		public void pendingOperationSuccess(Object o) {
+			mIHolder.removeTileSprite();
 			CornerTileStackRectangle tileStack = (CornerTileStackRectangle)o;
 			TileSprite.this.disableTouch();
 			tileStack.push(TileSprite.this);

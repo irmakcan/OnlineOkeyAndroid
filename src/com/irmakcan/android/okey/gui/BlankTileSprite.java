@@ -57,7 +57,11 @@ public class BlankTileSprite extends Sprite implements IPendingOperation{
 					mCenterX = pSceneTouchEvent.getX() - board.getX();
 					mCenterY = pSceneTouchEvent.getY() - board.getY();
 					
-					mTableManager.drawCenterTile(this);
+					if(mTableManager.getBoard().isEmpty(mCenterX, mCenterY)){
+						mTableManager.drawCenterTile(this);
+					} else {
+						cancelPendingOperation();
+					}
 				}else{
 					// Send it back where it comes from
 					cancelPendingOperation();
@@ -77,7 +81,9 @@ public class BlankTileSprite extends Sprite implements IPendingOperation{
 
 	@Override
 	public void pendingOperationSuccess(Object o) {
-		
+		this.setPosition(mX, mY);
+		TileSprite ts = (TileSprite)o;
+		mTableManager.moveTile(ts.getMovePendingOperation(), ts, mCenterX, mCenterY);
 	}
 	// ===========================================================
 	// Methods

@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
+import android.util.Log;
+
 import com.irmakcan.android.okey.gui.Board;
 import com.irmakcan.android.okey.gui.BoardFragment;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
@@ -17,10 +19,11 @@ public class TableManager implements IPendingOperation {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	
+	private static final String LOG_TAG = "Table Manager: ";
 	// ===========================================================
 	// Fields
 	// ===========================================================
+	
 	
 	private Map<TableCorner, CornerTileStackRectangle> mCorners;
 	private Tile mIndicator;
@@ -148,7 +151,8 @@ public class TableManager implements IPendingOperation {
 			pIPendingOperation.cancelPendingOperation();
 			return;
 		}
-		if(this.mTurn == this.mPosition){
+		Log.v(LOG_TAG, "Turn: " + this.getTurn().toString() + " Pos: " + this.getUserPosition());
+		if(this.getTurn() == this.getUserPosition()){
 			try {
 				JSONObject json = new JSONObject().put("action", "throw_tile").put("tile", pTile.toString());
 				WebSocketProvider.getWebSocket().send(json.toString());
