@@ -3,6 +3,8 @@ package com.irmakcan.android.okey.model;
 import java.util.List;
 import java.util.Map;
 
+import org.andengine.entity.primitive.Rectangle;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.util.Log;
@@ -31,6 +33,7 @@ public class TableManager implements IPendingOperation {
 	private int mCenterCount;
 	private final Board mBoard;
 	private final Position mPosition;
+	private final Rectangle mCenterArea;
 	
 	private IPendingOperation mIPendingOperation;
 	
@@ -39,10 +42,12 @@ public class TableManager implements IPendingOperation {
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public TableManager(final Position pPosition, final Board pBoard, final Map<TableCorner, CornerTileStackRectangle> pCorners) {
+	public TableManager(final Position pPosition, final Board pBoard
+			, final Map<TableCorner, CornerTileStackRectangle> pCorners, final Rectangle pCenterArea) {
 		this.mBoard = pBoard;
 		this.mCorners = pCorners;
 		this.mPosition = pPosition;
+		this.mCenterArea = pCenterArea;
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -74,6 +79,9 @@ public class TableManager implements IPendingOperation {
 	}
 	public int getCenterCount() {
 		return this.mCenterCount;
+	}
+	public Rectangle getCenterArea(){
+		return this.mCenterArea;
 	}
 	public void setCenterCount(int pCenterCount) {
 		this.mCenterCount = pCenterCount;
@@ -155,6 +163,36 @@ public class TableManager implements IPendingOperation {
 		if(this.getTurn() == this.getUserPosition()){
 			try {
 				JSONObject json = new JSONObject().put("action", "throw_tile").put("tile", pTile.toString());
+				WebSocketProvider.getWebSocket().send(json.toString());
+			} catch (Exception e){
+				e.printStackTrace();
+				this.cancelPendingOperation();
+			}
+		} else {
+			this.cancelPendingOperation();
+		}
+	}
+	public void throwTileToFinish(final IPendingOperation pIPendingOperation, final Tile pTile) {
+		if(!this.setPendingOperation(pIPendingOperation)){
+			pIPendingOperation.cancelPendingOperation();
+			return;
+		}
+		Log.v(LOG_TAG, "Turn: " + this.getTurn().toString() + " Pos: " + this.getUserPosition());
+		if(this.getTurn() == this.getUserPosition()){
+			try {
+				JSONArray hand = new JSONArray();
+				List<List<Tile>> tileList = this.mBoard.getHandWithoutTile(pTile);
+				for(List<Tile> tileGroup : tileList){ //TODO
+					JSONArray group = new JSONArray();
+					for(Tile tile : tileGroup){
+						group.put(tile.toString());
+					}
+					hand.put(group);
+				}
+				
+				JSONObject json = new JSONObject().put("action", "throw_to_finish")
+						.put("hand", hand).put("tile", pTile.toString());
+				Log.v(LOG_TAG, "Sending data: " + json.toString());//TODO
 				WebSocketProvider.getWebSocket().send(json.toString());
 			} catch (Exception e){
 				e.printStackTrace();

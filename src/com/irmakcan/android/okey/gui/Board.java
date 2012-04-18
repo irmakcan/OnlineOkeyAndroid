@@ -1,10 +1,15 @@
 package com.irmakcan.android.okey.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.util.Log;
+
+import com.irmakcan.android.okey.model.Tile;
 
 public class Board extends Rectangle {
 	// ===========================================================
@@ -62,6 +67,56 @@ public class Board extends Rectangle {
 	// ===========================================================
 	// Methods
 	// ===========================================================
+	public List<List<Tile>> getHandWithoutTile(final Tile pTile){
+		List<List<Tile>> hand = new ArrayList<List<Tile>>();
+		List<Tile> group = null;
+		for(int i=0;i<mLane1.length;i++){
+			if(!mLane1[i].hasTileSprite()){
+				if(group != null){
+					hand.add(group);
+					group = null;
+				}
+			}else{
+				Tile tile = mLane1[i].getTileSprite().getTile();
+				if(tile != pTile){ 
+					if(group == null){
+						group = new ArrayList<Tile>();
+					}
+					group.add(tile);
+				}
+			}
+		}
+		if(group != null){
+			hand.add(group);
+			group = null;
+		}
+		for(int i=0;i<mLane2.length;i++){
+			if(!mLane2[i].hasTileSprite()){
+				if(group != null){
+					hand.add(group);
+					group = null;
+				}
+			}else{
+				Tile tile = mLane2[i].getTileSprite().getTile();
+				if(tile != pTile){ 
+					if(group == null){
+						group = new ArrayList<Tile>();
+					}
+					group.add(tile);
+				}
+			}
+		}
+		if(group != null){
+			hand.add(group);
+			group = null;
+		}
+		for(List<Tile> g : hand){ //TODO
+			for(Tile t : g){
+				Log.v(LOG_TAG, t.toString());
+			}
+		}
+		return hand;
+	}
 	public void addChild(TileSprite pTileSprite) throws IllegalStateException {
 		// Find first empty board fragment
 		BoardFragment bf = null;

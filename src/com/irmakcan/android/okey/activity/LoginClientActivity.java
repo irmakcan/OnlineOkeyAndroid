@@ -42,8 +42,8 @@ public class LoginClientActivity extends Activity {
 	// Constants
 	// ===========================================================
 	private static final String LOG_TAG = "LoginClientActivity";
-	private static final String HOST_URL = "192.168.1.100:8080";
-//	private static final String HOST_URL = "www.okey.irmakcan.com:8080";
+//	private static final String HOST_URL = "192.168.1.100:8080";
+	private static final String HOST_URL = "www.okey.irmakcan.com:8080";
 	// ===========================================================
 	// Fields
 	// ===========================================================

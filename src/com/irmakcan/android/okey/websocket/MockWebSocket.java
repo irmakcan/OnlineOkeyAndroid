@@ -56,7 +56,7 @@ public class MockWebSocket implements WebSocket {
 			final String action = json.getString("action");
 			if(action.equals("ready")){
 				String response = "{\"status\":\"game_start\",\"turn\":\"south\",\"center_count\":48," +
-						"\"hand\":[\"4:0\",\"7:3\",\"6:2\"]," +
+						"\"hand\":[\"4:0\",\"7:3\",\"6:2\",\"1:2\",\"2:2\",\"3:2\",\"4:2\",\"5:2\",\"6:2\",\"7:2\",\"8:2\",\"9:2\",\"10:2\",\"11:2\"]," +
 						"\"indicator\":\"4:1\"}";
 
 				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
@@ -78,6 +78,10 @@ public class MockWebSocket implements WebSocket {
 				String response = "{\"status\":\"throw_tile\",\"tile\":\"" + tile + "\",\"turn\":\"east\"}";
 
 				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
+				
+//				response = "{ \"status\":\"user_won\", \"turn\":\"east\", \"username\":\"Pierre\"," +
+//						" \"hand\":[[\"5:0\",\"4:1\",\"3:2\"],[\"1:1\",\"12:1\",\"5:3\",\"2:2\"]] }";
+//				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 			}
 			//		this.mEventHandler.onMessage(message);
 		} catch (JSONException e) {

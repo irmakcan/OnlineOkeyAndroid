@@ -5,8 +5,9 @@ import java.util.Map;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
-import org.andengine.engine.options.EngineOptions.ScreenOrientation;
+import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.primitive.Rectangle;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.util.FPSLogger;
@@ -34,6 +35,7 @@ import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.GameStartResponse;
 import com.irmakcan.android.okey.gson.ModelDeserializer;
 import com.irmakcan.android.okey.gson.ThrowTileResponse;
+import com.irmakcan.android.okey.gson.WonResponse;
 import com.irmakcan.android.okey.gui.BlankTileSprite;
 import com.irmakcan.android.okey.gui.Board;
 import com.irmakcan.android.okey.gui.Constants;
@@ -87,9 +89,9 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private Board mBoard;
 	private Map<TableCorner, CornerTileStackRectangle> mCornerStacks;
-
+	private Rectangle mCenterArea;
+	
 	private Scene mScene;
-
 
 
 	// ===========================================================
@@ -167,6 +169,12 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			this.mCornerStacks.put(corner, cornerStack);
 			position = corner.nextPosition();
 		}
+		// Create center throwing area
+		this.mCenterArea = new Rectangle(2*CORNER_X_MARGIN + Constants.TILE_WIDTH, CORNER_Y_MARGIN,
+				CAMERA_WIDTH - (2*(2*CORNER_X_MARGIN + Constants.TILE_WIDTH)), CAMERA_HEIGHT - (mBoard.getHeight() + 2*CORNER_Y_MARGIN), 
+				this.getVertexBufferObjectManager());
+		this.mCenterArea.setAlpha(0f);
+		mScene.attachChild(this.mCenterArea);
 
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
 		mScene.setTouchAreaBindingOnActionMoveEnabled(true);
@@ -184,7 +192,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	public synchronized void onGameCreated() {
 		super.onGameCreated();
 
-		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks);
+		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea);
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		webSocket.setEventHandler(mWebSocketEventHandler);
 
@@ -334,6 +342,22 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 						mTableManager.setCenterCount(gameStartResponse.getCenterCount());
 					}
 				});
+			}else if(status.equals("user_won")){
+				//{ "status":"user_won", "turn":user.position, "username":user.username, hand:[[],[]] }
+				// Show hand
+				gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer())
+						.registerTypeAdapter(Tile.class, new ModelDeserializer.TileDeserializer())
+						.create();
+				final WonResponse wonResponse = gson.fromJson(message.getText(), WonResponse.class);
+				Log.v(LOG_TAG, wonResponse.getStatus());
+				Log.v(LOG_TAG, wonResponse.getTurn().toString());
+				Log.v(LOG_TAG, wonResponse.getUsername().toString());
+				for(Tile[] group : wonResponse.getHand()){
+					for(Tile t : group){
+						Log.v(LOG_TAG, t.toString());
+					}
+				}
+				
 			}
 		}
 		@Override

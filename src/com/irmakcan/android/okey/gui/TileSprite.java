@@ -40,6 +40,9 @@ public class TileSprite extends Sprite {
 		this.mTile = pTile;
 		this.mTableManager = pTableManager;
 
+		this.mOldX = pX;
+		this.mOldY = pY;
+		
 		final Text centerText = new Text(0, 0, pFont, Integer.toString(pTile.getValue()), MAXIMUM_CHARACTERS, new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
 		centerText.setColor(pTile.getTileColor().getColor());
 		centerText.setPosition((pTextureRegion.getWidth()/2)-(centerText.getWidth()/2), 4); // TODO
@@ -103,18 +106,11 @@ public class TileSprite extends Sprite {
 						this.setPosition(mOldX, mOldY);
 					}
 					
-					
-//					boolean success = board.addChild(this, (pSceneTouchEvent.getX() - board.getX()), (pSceneTouchEvent.getY() - board.getY()));
-//					if(!success){
-////						cancelPendingOperation();
-//					}else{
-//						// TODO remove from board fragment
-//					}
 				}else if(this.collidesWith(mTableManager.getNextCornerStack())){
 					Log.v("TileSprite", "Collides: centerX: " + TileSprite.this.getX()+pTouchAreaLocalX + "centerY: " + TileSprite.this.getY()+pTouchAreaLocalY);
 					this.mTableManager.throwTile(mThrowPendingOperation, this.getTile());
-//				}else if(this.collidesWith(mTableManager.getCenterStack())){ // Throw to finish
-
+				}else if(this.collidesWith(mTableManager.getCenterArea())){ // Throw to finish
+					this.mTableManager.throwTileToFinish(mThrowToFinishPendingOperation, this.getTile());
 				}else{
 					this.setPosition(mOldX, mOldY);// Send it back where it comes from
 				}
@@ -173,6 +169,19 @@ public class TileSprite extends Sprite {
 			CornerTileStackRectangle tileStack = (CornerTileStackRectangle)o;
 			TileSprite.this.disableTouch();
 			tileStack.push(TileSprite.this);
+		}
+		@Override
+		public void cancelPendingOperation() {
+			TileSprite.this.setPosition(mOldX, mOldY);
+		}
+	};
+	private IPendingOperation mThrowToFinishPendingOperation = new IPendingOperation() {
+		@Override
+		public void pendingOperationSuccess(Object o) {
+			mIHolder.removeTileSprite();
+			TileSprite.this.disableTouch();
+			TileSprite.this.dispose();
+			TileSprite.this.detachSelf();
 		}
 		@Override
 		public void cancelPendingOperation() {
