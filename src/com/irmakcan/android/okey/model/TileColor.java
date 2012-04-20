@@ -41,17 +41,6 @@ public enum TileColor {
 	// Methods
 	// ===========================================================
 
-//	public static boolean hasPosition(String pPosition){
-//		if(pPosition != null){
-//			for(Position position : Position.values()){
-//				if(pPosition.equalsIgnoreCase(position.mPosition)){
-//					return true;
-//				}
-//			}
-//		}
-//		return false;
-//	}
-
 	public static TileColor fromId(final int pColorId){
 		for(TileColor color : TileColor.values()){
 			if(pColorId == color.mColorId){

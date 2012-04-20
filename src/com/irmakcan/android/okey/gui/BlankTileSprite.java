@@ -68,6 +68,7 @@ public class BlankTileSprite extends Sprite implements IPendingOperation{
 				}
 				break;
 			default: // Set its position where it was picked up
+				cancelPendingOperation();
 				break;
 			}
 		}

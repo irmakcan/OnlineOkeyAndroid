@@ -25,9 +25,13 @@ public class WebSocketProvider {
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public static WebSocket createWebSocketConnection(URI pURI) throws WebSocketException{
-		if(mWebSocket != null && mWebSocket.isConnected()){
-			mWebSocket.close();
+	public static WebSocket createWebSocketConnection(URI pURI) throws WebSocketException {
+		try {
+			if(mWebSocket != null && mWebSocket.isConnected()){
+				mWebSocket.close();
+			}
+		} catch (WebSocketException e){
+			e.printStackTrace(); // Do nothing
 		}
 		mWebSocket = new WebSocketConnection(pURI);
 		return mWebSocket;

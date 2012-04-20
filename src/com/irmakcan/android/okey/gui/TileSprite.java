@@ -66,7 +66,7 @@ public class TileSprite extends Sprite {
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
 	@Override
-	public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+	public synchronized boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
 		if(this.mTouchEnabled){
 			switch (pSceneTouchEvent.getAction()) {
 			case TouchEvent.ACTION_MOVE:
@@ -124,15 +124,6 @@ public class TileSprite extends Sprite {
 		return true;
 	}
 
-//	@Override
-//	public void cancelPendingOperation() {
-//		this.setPosition(mOldX, mOldY);
-//	}
-//	@Override
-//	public void pendingOperationSuccess(Object o) {
-//		// TODO
-//	}
-
 	// ===========================================================
 	// Methods
 	// ===========================================================
@@ -144,6 +135,12 @@ public class TileSprite extends Sprite {
 	}
 	public IPendingOperation getMovePendingOperation() {
 		return mMovePendingOperation;
+	}
+	
+	public void setTilePosition(float pX, float pY) {
+		this.mOldX = pX;
+		this.mOldY = pY;
+		this.setPosition(pX, pY);
 	}
 	// ===========================================================
 	// Inner and Anonymous Classes

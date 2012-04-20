@@ -164,7 +164,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			TableCorner corner = TableCorner.nextCornerFromPosition(position);
 			Log.v(LOG_TAG, corner.toString());
 			final Point point = CORNER_POINTS[i];
-			final CornerTileStackRectangle cornerStack = new CornerTileStackRectangle(point.x, point.y, TILE_WIDTH, TILE_HEIGHT, this.getVertexBufferObjectManager(), corner);
+			final CornerTileStackRectangle cornerStack = new CornerTileStackRectangle(point.x, point.y, TILE_WIDTH, TILE_HEIGHT, this.getVertexBufferObjectManager(), corner, mScene);
 			mScene.attachChild(cornerStack);
 			this.mCornerStacks.put(corner, cornerStack);
 			position = corner.nextPosition();
@@ -204,6 +204,17 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			e.printStackTrace();
 		}
 
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		try {
+			JSONObject json = new JSONObject().put("action", "leave_room");
+			WebSocketProvider.getWebSocket().send(json.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	// ===========================================================
 	// Methods
@@ -357,7 +368,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 						Log.v(LOG_TAG, t.toString());
 					}
 				}
+				// Show tiles
 				
+				// Finish game
+				OnlineOkeyClientActivity.this.finish();
 			}
 		}
 		@Override

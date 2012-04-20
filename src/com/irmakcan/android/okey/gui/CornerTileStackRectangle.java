@@ -3,11 +3,12 @@ package com.irmakcan.android.okey.gui;
 import java.util.Stack;
 
 import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.irmakcan.android.okey.model.TableCorner;
 
-public class CornerTileStackRectangle extends Rectangle implements IHolder{
+public class CornerTileStackRectangle extends Rectangle {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -18,15 +19,17 @@ public class CornerTileStackRectangle extends Rectangle implements IHolder{
 
 	private final Stack<TileSprite> mTileStack = new Stack<TileSprite>();
 	private final TableCorner mTableCorner;
+	private final Scene mScene;
 
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 	public CornerTileStackRectangle(float pX, float pY, float pWidth, float pHeight, 
-			VertexBufferObjectManager pVertexBufferObjectManager, final TableCorner pTableCorner) {
+			VertexBufferObjectManager pVertexBufferObjectManager, final TableCorner pTableCorner, final Scene pScene) {
 		super(pX, pY, pWidth, pHeight, pVertexBufferObjectManager);
 		this.setZIndex(0);
 		this.mTableCorner = pTableCorner;
+		this.mScene = pScene;
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -37,25 +40,7 @@ public class CornerTileStackRectangle extends Rectangle implements IHolder{
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	@Override
-	public void addTileSprite(TileSprite pTileSprite) {
-		this.push(pTileSprite);
-	}
-	@Override
-	public TileSprite getTileSprite() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public TileSprite removeTileSprite() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public boolean hasTileSprite() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 	// ===========================================================
 	// Methods
 	// ===========================================================
@@ -64,6 +49,11 @@ public class CornerTileStackRectangle extends Rectangle implements IHolder{
 		return tile;
 	}
 	public void push(final TileSprite pTileSprite) {
+		final TileSprite lastElement = this.lastElement();
+		if(lastElement != null){
+			this.mScene.unregisterTouchArea(lastElement);
+			lastElement.disableTouch();
+		}
 		pTileSprite.setZIndex(this.mTileStack.size());
 		pTileSprite.getParent().sortChildren();
 		pTileSprite.setPosition(this);

@@ -40,6 +40,7 @@ import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
 import de.roderick.weberknecht.WebSocket;
 import de.roderick.weberknecht.WebSocketEventHandler;
+import de.roderick.weberknecht.WebSocketException;
 import de.roderick.weberknecht.WebSocketMessage;
 
 public class OkeyLoungeActivity extends Activity{
@@ -86,16 +87,29 @@ public class OkeyLoungeActivity extends Activity{
 		createButton.setOnClickListener(mCreateAction);
 		this.mPlayerCountView = (TextView)findViewById(R.id.loungescreen_textview_player_count);
 
+	}
 
-		/* -- should be onStart ? -- */
+	@Override
+	protected void onStart() {
+		super.onStart();
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		webSocket.setEventHandler(mWebSocketEventHandler);
 		sendRefreshRequest();
-		/* ----------- */
 	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		try {
+			WebSocketProvider.getWebSocket().close();
+		} catch (WebSocketException e) {
+			e.printStackTrace();
+		}
 	}
 	// ===========================================================
 	// Methods

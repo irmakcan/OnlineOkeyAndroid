@@ -35,7 +35,7 @@ public class SSLClientProvider {
 	// Constructors
 	// ===========================================================
 	private SSLClientProvider() {
-		// TODO Auto-generated constructor stub
+		
 	}
 	// ===========================================================
 	// Getter & Setter
