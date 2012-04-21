@@ -109,9 +109,9 @@ public class TableManager implements IPendingOperation {
 	// ===========================================================
 	// Methods
 	// ===========================================================
-	public void initializeGame(final Position pTurn, final int pCenterCount, final List<Tile> pUserHand, final Tile pIndicator) {
-		
-	}
+//	public void initializeGame(final Position pTurn, final int pCenterCount, final List<Tile> pUserHand, final Tile pIndicator) {
+//		
+//	}
 	public synchronized boolean setPendingOperation(final IPendingOperation pIPendingOperation){
 		if(this.mIPendingOperation != null){
 			return false;

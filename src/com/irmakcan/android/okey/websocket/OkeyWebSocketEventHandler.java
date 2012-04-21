@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.irmakcan.android.okey.activity.OnlineOkeyClientActivity;
 import com.irmakcan.android.okey.gson.BaseResponse;
+import com.irmakcan.android.okey.gson.ChatResponse;
 import com.irmakcan.android.okey.gson.DrawTileResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.GameStartResponse;
@@ -106,7 +107,10 @@ public class OkeyWebSocketEventHandler implements WebSocketEventHandler {
 			}
 			this.mOnlineOkeyClientActivity.userWonMessage(wonResponse);
 		}else if(status.equals("chat")){
-			// {"status":"chat","position":"south","message":"Hi, this is a chat mes''sage"}
+			// {"status":"chat","position":"south","message":"Hi, this is a chat message"}
+			gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer()).create();
+			final ChatResponse chatResponse = gson.fromJson(message.getText(), ChatResponse.class);
+			this.mOnlineOkeyClientActivity.chatMessage(chatResponse);
 		}
 	}
 	@Override

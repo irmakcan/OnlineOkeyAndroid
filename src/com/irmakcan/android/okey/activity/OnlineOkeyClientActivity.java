@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.irmakcan.android.okey.gson.ChatResponse;
 import com.irmakcan.android.okey.gson.DrawTileResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.GameStartResponse;
@@ -189,7 +190,6 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea);
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
-//		webSocket.setEventHandler(mWebSocketEventHandler);
 		webSocket.setEventHandler(new OkeyWebSocketEventHandler(this));
 
 		try {
@@ -320,7 +320,14 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		// Finish game
 		OnlineOkeyClientActivity.this.finish();
 	}
-	// public void chatMessage() TODO
+	public void chatMessage(final ChatResponse pChatResponse){
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(OnlineOkeyClientActivity.this, /*mTableManager.getUser().username TODO */pChatResponse.getMessage(), Toast.LENGTH_LONG).show();
+			}
+		});
+	}
 
 	// ===========================================================
 	// Inner and Anonymous Classes
