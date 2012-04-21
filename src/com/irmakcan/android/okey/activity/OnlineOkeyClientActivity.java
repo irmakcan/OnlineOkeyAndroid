@@ -27,13 +27,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.irmakcan.android.okey.gson.BaseResponse;
 import com.irmakcan.android.okey.gson.DrawTileResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.GameStartResponse;
-import com.irmakcan.android.okey.gson.ModelDeserializer;
 import com.irmakcan.android.okey.gson.ThrowTileResponse;
 import com.irmakcan.android.okey.gson.WonResponse;
 import com.irmakcan.android.okey.gui.BlankTileSprite;
@@ -47,11 +43,10 @@ import com.irmakcan.android.okey.model.Position;
 import com.irmakcan.android.okey.model.TableCorner;
 import com.irmakcan.android.okey.model.TableManager;
 import com.irmakcan.android.okey.model.Tile;
+import com.irmakcan.android.okey.websocket.OkeyWebSocketEventHandler;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
 import de.roderick.weberknecht.WebSocket;
-import de.roderick.weberknecht.WebSocketEventHandler;
-import de.roderick.weberknecht.WebSocketMessage;
 
 public class OnlineOkeyClientActivity extends BaseGameActivity {
 	// ===========================================================
@@ -90,7 +85,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private Board mBoard;
 	private Map<TableCorner, CornerTileStackRectangle> mCornerStacks;
 	private Rectangle mCenterArea;
-	
+
 	private Scene mScene;
 
 
@@ -194,7 +189,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea);
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
-		webSocket.setEventHandler(mWebSocketEventHandler);
+//		webSocket.setEventHandler(mWebSocketEventHandler);
+		webSocket.setEventHandler(new OkeyWebSocketEventHandler(this));
 
 		try {
 			JSONObject json = new JSONObject().put("action", "ready");
@@ -205,7 +201,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		}
 
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -224,159 +220,109 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		return new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager);
 	}
 
+	// Actions
+	public void errorMessage(final ErrorResponse pErrorResponse){
+		this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(OnlineOkeyClientActivity.this.getApplicationContext(), pErrorResponse.getMessage(), Toast.LENGTH_SHORT).show();
+				OnlineOkeyClientActivity.this.mTableManager.cancelPendingOperation();
+			}
+		});
+	}
+	public void gameStartMessage(final GameStartResponse pGameStartResponse){
+		this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				TileSprite indicatorSprite = createNewTileSprite(pGameStartResponse.getIndicator());
+				indicatorSprite.setPosition(CAMERA_WIDTH/2 - (indicatorSprite.getWidth() + Constants.TILE_PADDING_X), 
+						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2);
+				mScene.attachChild(indicatorSprite);
+				// CenterTiles TODO
+				BlankTileSprite blankTileSprite = new BlankTileSprite(
+						CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
+						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
+						mTileTextureRegion, getVertexBufferObjectManager(), mTableManager);
+				mScene.registerTouchArea(blankTileSprite);
+				blankTileSprite.enableTouch();
+				mScene.attachChild(blankTileSprite);
+
+				for(Tile tile : pGameStartResponse.getUserHand()){
+					TileSprite ts = createNewTileSprite(tile);
+					mScene.registerTouchArea(ts);
+					ts.enableTouch();
+					mScene.attachChild(ts);
+					mBoard.addChild(ts);
+				}
+				mTableManager.setTurn(pGameStartResponse.getTurn());
+				mTableManager.setCenterCount(pGameStartResponse.getCenterCount());
+			}
+		});
+	}
+	public void drawTileMessage(final DrawTileResponse pDrawTileResponse){
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if(mTableManager.getUserPosition() == pDrawTileResponse.getTurn()){ // Drawn by user (center or corner)
+					if(mTableManager.getCenterCount() == pDrawTileResponse.getCenterCount()){
+						mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
+					}else{
+						TileSprite tileSprite = createNewTileSprite(pDrawTileResponse.getTile());
+						mScene.registerTouchArea(tileSprite);
+						tileSprite.enableTouch();
+						mScene.attachChild(tileSprite);
+						mTableManager.pendingOperationSuccess(tileSprite);
+					}
+				} else {
+					if(mTableManager.getCenterCount() == pDrawTileResponse.getCenterCount()){ // Drawn from corner
+						CornerTileStackRectangle tileStack = mTableManager.getCornerStack(TableCorner.previousCornerFromPosition(pDrawTileResponse.getTurn()));
+						final TileSprite tileSprite = tileStack.pop();
+						tileSprite.dispose();
+						//mScene.unregisterTouchArea(tileSprite); TODO test
+						runOnUpdateThread(new Runnable() {
+							@Override
+							public void run() {
+								tileSprite.detachSelf();
+							}
+						});
+					} else { // Drawn from center
+						// TODO
+					}
+				}
+				mTableManager.setCenterCount(pDrawTileResponse.getCenterCount());
+			}
+		});
+	}
+	public void throwTileMessage(final ThrowTileResponse pThrowTileResponse){
+		final TableCorner prevCorner = TableCorner.previousCornerFromPosition(pThrowTileResponse.getTurn());
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if(TableCorner.nextCornerFromPosition(mTableManager.getUserPosition()) == prevCorner){ // Tile thrown by this user
+					mTableManager.setTurn(pThrowTileResponse.getTurn());
+					mTableManager.pendingOperationSuccess(mTableManager.getCornerStack(prevCorner));
+				} else {
+					TileSprite tileSprite = createNewTileSprite(pThrowTileResponse.getTile());
+					if(pThrowTileResponse.getTurn() == mTableManager.getUserPosition()){
+						mScene.registerTouchArea(tileSprite);
+						tileSprite.enableTouch();
+					}
+					mScene.attachChild(tileSprite);
+					mTableManager.getCornerStack(prevCorner).push(tileSprite);
+					mTableManager.setTurn(pThrowTileResponse.getTurn());
+				}
+			}
+		});
+	}
+	public void userWonMessage(final WonResponse pWonResponse){
+		// Show tiles
+
+		// Finish game
+		OnlineOkeyClientActivity.this.finish();
+	}
+	// public void chatMessage() TODO
+
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-
-	private WebSocketEventHandler mWebSocketEventHandler = new WebSocketEventHandler() {
-		@Override
-		public void onOpen() {
-			Log.v(LOG_TAG, "OkeyGame WebSocket connected");
-			throw new IllegalAccessError("Should not call onOpen in OkeyGame");
-		}
-		@Override
-		public void onMessage(WebSocketMessage message) {
-			Log.v(LOG_TAG, "OkeyGame Message received: " + message.getText());
-			Gson gson = new Gson();
-			BaseResponse baseResponse = gson.fromJson(message.getText(), BaseResponse.class);
-			String status = baseResponse.getStatus();
-			if(status.equals("error")){
-				final ErrorResponse errorResponse = gson.fromJson(message.getText(), ErrorResponse.class);
-				OnlineOkeyClientActivity.this.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(OnlineOkeyClientActivity.this.getApplicationContext(), errorResponse.getMessage(), Toast.LENGTH_SHORT).show();
-						OnlineOkeyClientActivity.this.mTableManager.cancelPendingOperation();
-					}
-				});
-			} else if(status.equals("throw_tile")){
-				// {"status":"throw_tile","turn":"east","tile":"2:2"}
-				gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer())
-						.registerTypeAdapter(Tile.class, new ModelDeserializer.TileDeserializer())
-						.create();
-				final ThrowTileResponse throwTileResponse = gson.fromJson(message.getText(), ThrowTileResponse.class);
-				Log.v(LOG_TAG, throwTileResponse.getStatus() + throwTileResponse.getTile().toString() + throwTileResponse.getTurn().toString());
-				final TableCorner prevCorner = TableCorner.previousCornerFromPosition(throwTileResponse.getTurn());
-
-
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						if(TableCorner.nextCornerFromPosition(mTableManager.getUserPosition()) == prevCorner){ // Tile thrown by this user
-							mTableManager.setTurn(throwTileResponse.getTurn());
-							mTableManager.pendingOperationSuccess(mTableManager.getCornerStack(prevCorner));
-						} else {
-							TileSprite tileSprite = createNewTileSprite(throwTileResponse.getTile());
-							if(throwTileResponse.getTurn() == mTableManager.getUserPosition()){
-								mScene.registerTouchArea(tileSprite);
-								tileSprite.enableTouch();
-							}
-							mScene.attachChild(tileSprite);
-							mTableManager.getCornerStack(prevCorner).push(tileSprite);
-							mTableManager.setTurn(throwTileResponse.getTurn());
-						}
-					}
-				});
-
-			} else if(status.equals("draw_tile")){
-				// {"status":"draw_tile","tile":"8:0","turn":"east","center_count":47}
-				gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer())
-						.registerTypeAdapter(Tile.class, new ModelDeserializer.TileDeserializer())
-						.create();
-				final DrawTileResponse drawTileResponse = gson.fromJson(message.getText(), DrawTileResponse.class);
-				Log.v(LOG_TAG, drawTileResponse.getStatus() + drawTileResponse.getTurn().toString() + drawTileResponse.getCenterCount());
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						if(mTableManager.getUserPosition() == drawTileResponse.getTurn()){ // Drawn by user (center or corner)
-							if(mTableManager.getCenterCount() == drawTileResponse.getCenterCount()){
-								mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
-							}else{
-								TileSprite tileSprite = createNewTileSprite(drawTileResponse.getTile());
-								mScene.registerTouchArea(tileSprite);
-								tileSprite.enableTouch();
-								mScene.attachChild(tileSprite);
-								mTableManager.pendingOperationSuccess(tileSprite);
-							}
-						} else {
-							if(mTableManager.getCenterCount() == drawTileResponse.getCenterCount()){ // Drawn from corner
-								CornerTileStackRectangle tileStack = mTableManager.getCornerStack(TableCorner.previousCornerFromPosition(drawTileResponse.getTurn()));
-								final TileSprite tileSprite = tileStack.pop();
-								tileSprite.dispose();
-								//mScene.unregisterTouchArea(tileSprite); TODO test
-								runOnUpdateThread(new Runnable() {
-									@Override
-									public void run() {
-										tileSprite.detachSelf();
-									}
-								});
-							} else { // Drawn from center
-								// TODO
-							}
-						}
-						mTableManager.setCenterCount(drawTileResponse.getCenterCount());
-					}
-				});
-
-			} else if(status.equals("game_start")){
-				// {"status":"game_start","turn":"south","center_count":48,"hand":["4:0","7:3",...,"6:2"],"indicator":"4:0"}
-				gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer())
-						.registerTypeAdapter(Tile.class, new ModelDeserializer.TileDeserializer())
-						.create();
-				final GameStartResponse gameStartResponse = gson.fromJson(message.getText(), GameStartResponse.class);
-				Log.v(LOG_TAG, gameStartResponse.getStatus() + gameStartResponse.getIndicator().toString() + 
-						gameStartResponse.getTurn().toString() + gameStartResponse.getCenterCount() + gameStartResponse.getUserHand());
-				OnlineOkeyClientActivity.this.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						TileSprite indicatorSprite = createNewTileSprite(gameStartResponse.getIndicator());
-						indicatorSprite.setPosition(CAMERA_WIDTH/2 - (indicatorSprite.getWidth() + Constants.TILE_PADDING_X), 
-								(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2);
-						mScene.attachChild(indicatorSprite);
-						// CenterTiles TODO
-						BlankTileSprite blankTileSprite = new BlankTileSprite(
-								CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
-								(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
-								mTileTextureRegion, getVertexBufferObjectManager(), mTableManager);
-						mScene.registerTouchArea(blankTileSprite);
-						blankTileSprite.enableTouch();
-						mScene.attachChild(blankTileSprite);
-
-						for(Tile tile : gameStartResponse.getUserHand()){
-							TileSprite ts = createNewTileSprite(tile);
-							mScene.registerTouchArea(ts);
-							ts.enableTouch();
-							mScene.attachChild(ts);
-							mBoard.addChild(ts);
-						}
-						mTableManager.setTurn(gameStartResponse.getTurn());
-						mTableManager.setCenterCount(gameStartResponse.getCenterCount());
-					}
-				});
-			}else if(status.equals("user_won")){
-				//{ "status":"user_won", "turn":user.position, "username":user.username, hand:[[],[]] }
-				// Show hand
-				gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer())
-						.registerTypeAdapter(Tile.class, new ModelDeserializer.TileDeserializer())
-						.create();
-				final WonResponse wonResponse = gson.fromJson(message.getText(), WonResponse.class);
-				Log.v(LOG_TAG, wonResponse.getStatus());
-				Log.v(LOG_TAG, wonResponse.getTurn().toString());
-				Log.v(LOG_TAG, wonResponse.getUsername().toString());
-				for(Tile[] group : wonResponse.getHand()){
-					for(Tile t : group){
-						Log.v(LOG_TAG, t.toString());
-					}
-				}
-				// Show tiles
-				
-				// Finish game
-				OnlineOkeyClientActivity.this.finish();
-			}
-		}
-		@Override
-		public void onClose() {
-			Log.v(LOG_TAG, "OkeyGame WebSocket disconnected");
-		}
-	};
 }
