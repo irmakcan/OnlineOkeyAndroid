@@ -20,13 +20,24 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
+import com.irmakcan.android.okey.R;
 import com.irmakcan.android.okey.gson.ChatResponse;
 import com.irmakcan.android.okey.gson.DrawTileResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
@@ -246,10 +257,70 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.game_menu, menu);
+	    return true;
+	}
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+	        case R.id.game_menu_chat:
+	            showChatWindow();
+	            return true;
+//	        case R.id.help:
+//	            showHelp();
+//	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
 	// ===========================================================
 	// Methods
 	// ===========================================================
 
+	private void showChatWindow(){
+		AlertDialog.Builder builder;
+		AlertDialog alertDialog;
+
+		Context context = OnlineOkeyClientActivity.this;
+		LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
+		View layout = inflater.inflate(R.layout.chat_message_form,
+				(ViewGroup) findViewById(R.id.chat_message_form_root));
+
+		final EditText chatMessageEditText = (EditText) layout.findViewById(R.id.chat_message_form_edittext_message);
+
+		builder = new AlertDialog.Builder(context);
+		builder.setTitle("New Message")
+		.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int id) {
+				OnlineOkeyClientActivity.this.sendChatMessage(chatMessageEditText.getText().toString());
+			}
+		})
+		.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.cancel();
+			}
+		});
+		builder.setView(layout);
+		alertDialog = builder.create();
+		alertDialog.show();
+	}
+	
+	private void sendChatMessage(String string) {
+		try {
+			JSONObject json = new JSONObject().put("action", "chat").put("message", string);
+			WebSocketProvider.getWebSocket().send(json.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private TileSprite createNewTileSprite(final Tile pTile) {
 		return new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager);
 	}

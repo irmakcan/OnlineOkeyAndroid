@@ -31,4 +31,6 @@
 	<string name="room_create_form_edittext_button_create">Create Room</string>
 	<string name="room_create_form_edittext_button_cancel">Cancel</string>
 	
+	<!-- Game Menu -->
+	<string name="game_menu_chat">Write Message</string>
 </resources>
