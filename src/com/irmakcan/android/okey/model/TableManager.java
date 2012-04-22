@@ -1,5 +1,6 @@
 package com.irmakcan.android.okey.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import com.irmakcan.android.okey.gui.BoardFragment;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
 import com.irmakcan.android.okey.gui.IPendingOperation;
 import com.irmakcan.android.okey.gui.TileSprite;
+import com.irmakcan.android.okey.gui.UserInfoArea;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
 
@@ -26,6 +28,8 @@ public class TableManager implements IPendingOperation {
 	// Fields
 	// ===========================================================
 	
+	private final Map<Position, User> mUsers;
+	private final Map<Position, UserInfoArea> mUserAreas;
 	
 	private Map<TableCorner, CornerTileStackRectangle> mCorners;
 	private Tile mIndicator;
@@ -38,16 +42,19 @@ public class TableManager implements IPendingOperation {
 	private IPendingOperation mIPendingOperation;
 	
 	private Position mTurn;
-	
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public TableManager(final Position pPosition, final Board pBoard
-			, final Map<TableCorner, CornerTileStackRectangle> pCorners, final Rectangle pCenterArea) {
+	public TableManager(final Position pPosition, final Board pBoard, 
+			final Map<TableCorner, CornerTileStackRectangle> pCorners, final Rectangle pCenterArea,
+			final Map<Position, UserInfoArea> pUserAreas) {
 		this.mBoard = pBoard;
 		this.mCorners = pCorners;
 		this.mPosition = pPosition;
 		this.mCenterArea = pCenterArea;
+		this.mUserAreas = pUserAreas;
+		this.mUsers = new HashMap<Position, User>();
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -88,6 +95,17 @@ public class TableManager implements IPendingOperation {
 	}
 	public CornerTileStackRectangle getCornerStack(final TableCorner pTableCorner){
 		return mCorners.get(pTableCorner);
+	}
+	
+	public User getUserAt(Position pPosition){
+		return mUsers.get(pPosition);
+	}
+	public void setUserAt(Position pPosition, User pUser){ // TODO
+		mUsers.put(pPosition, pUser);
+		mUserAreas.get(pPosition).setTextFrom(pUser);
+	}
+	public void clearUserAt(Position pPosition){ // TODO
+		mUserAreas.get(pPosition).setTextFrom(null);
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces

@@ -11,7 +11,9 @@ import com.irmakcan.android.okey.gson.DrawTileResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.GameStartResponse;
 import com.irmakcan.android.okey.gson.ModelDeserializer;
+import com.irmakcan.android.okey.gson.NewUserResponse;
 import com.irmakcan.android.okey.gson.ThrowTileResponse;
+import com.irmakcan.android.okey.gson.UserLeaveResponse;
 import com.irmakcan.android.okey.gson.WonResponse;
 import com.irmakcan.android.okey.model.Position;
 import com.irmakcan.android.okey.model.Tile;
@@ -90,8 +92,8 @@ public class OkeyWebSocketEventHandler implements WebSocketEventHandler {
 			Log.v(LOG_TAG, gameStartResponse.getStatus() + gameStartResponse.getIndicator().toString() + 
 					gameStartResponse.getTurn().toString() + gameStartResponse.getCenterCount() + gameStartResponse.getUserHand());
 			this.mOnlineOkeyClientActivity.gameStartMessage(gameStartResponse);
-		}else if(status.equals("user_won")){
-			//{ "status":"user_won", "turn":user.position, "username":user.username, hand:[[],[]] }
+		} else if(status.equals("user_won")){
+			// {"status":"user_won","turn":user.position,"username":user.username,"hand":[["4:0","7:3"],["4:0","7:3"]]}
 			// Show hand
 			gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer())
 					.registerTypeAdapter(Tile.class, new ModelDeserializer.TileDeserializer())
@@ -106,11 +108,21 @@ public class OkeyWebSocketEventHandler implements WebSocketEventHandler {
 				}
 			}
 			this.mOnlineOkeyClientActivity.userWonMessage(wonResponse);
-		}else if(status.equals("chat")){
+		} else if(status.equals("chat")){
 			// {"status":"chat","position":"south","message":"Hi, this is a chat message"}
 			gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer()).create();
 			final ChatResponse chatResponse = gson.fromJson(message.getText(), ChatResponse.class);
 			this.mOnlineOkeyClientActivity.chatMessage(chatResponse);
+		} else if(status.equals("new_user")){
+			// {"status":"new_user","position":"east","username":"irmak"}
+			gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer()).create();
+			final NewUserResponse newUserResponse = gson.fromJson(message.getText(), NewUserResponse.class);
+			this.mOnlineOkeyClientActivity.newUserMessage(newUserResponse);
+		} else if(status.equals("user_leave")){
+			// {"status":"user_leave","position":"east"}
+			gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer()).create();
+			final UserLeaveResponse userLeaveResponse = gson.fromJson(message.getText(), UserLeaveResponse.class);
+			this.mOnlineOkeyClientActivity.userLeaveMessage(userLeaveResponse);
 		}
 	}
 	@Override

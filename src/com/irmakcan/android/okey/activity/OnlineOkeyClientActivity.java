@@ -31,19 +31,23 @@ import com.irmakcan.android.okey.gson.ChatResponse;
 import com.irmakcan.android.okey.gson.DrawTileResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.GameStartResponse;
+import com.irmakcan.android.okey.gson.NewUserResponse;
 import com.irmakcan.android.okey.gson.ThrowTileResponse;
+import com.irmakcan.android.okey.gson.UserLeaveResponse;
 import com.irmakcan.android.okey.gson.WonResponse;
 import com.irmakcan.android.okey.gui.BlankTileSprite;
 import com.irmakcan.android.okey.gui.Board;
 import com.irmakcan.android.okey.gui.Constants;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
 import com.irmakcan.android.okey.gui.TileSprite;
+import com.irmakcan.android.okey.gui.UserInfoArea;
 import com.irmakcan.android.okey.model.GameInformation;
 import com.irmakcan.android.okey.model.Player;
 import com.irmakcan.android.okey.model.Position;
 import com.irmakcan.android.okey.model.TableCorner;
 import com.irmakcan.android.okey.model.TableManager;
 import com.irmakcan.android.okey.model.Tile;
+import com.irmakcan.android.okey.model.User;
 import com.irmakcan.android.okey.websocket.OkeyWebSocketEventHandler;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
@@ -60,6 +64,9 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private static final int TILE_WIDTH = 56;
 	private static final int TILE_HEIGHT = 84;
+	
+	private static final int USER_AREA_WIDTH = 140;
+	private static final int USER_AREA_HEIGHT = 22;
 
 	private static final int CORNER_X_MARGIN = 30;
 	private static final int CORNER_Y_MARGIN = 20;
@@ -68,9 +75,16 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		new Point((CAMERA_WIDTH - (TILE_WIDTH + CORNER_X_MARGIN)), CORNER_Y_MARGIN), 
 		new Point(CORNER_X_MARGIN, CORNER_Y_MARGIN), 
 		new Point(CORNER_X_MARGIN, CAMERA_HEIGHT - (((int)Constants.FRAGMENT_HEIGHT*2) + CORNER_Y_MARGIN + TILE_HEIGHT)) };
+	private static final Point[] USER_AREA_POINTS = new Point[] { 
+		new Point((CAMERA_WIDTH/2 - USER_AREA_WIDTH/2), CAMERA_HEIGHT - (((int)Constants.FRAGMENT_HEIGHT*2) + CORNER_Y_MARGIN + USER_AREA_HEIGHT)), 
+		new Point((CAMERA_WIDTH - (USER_AREA_WIDTH + CORNER_X_MARGIN)), (CAMERA_HEIGHT-((int)Constants.FRAGMENT_HEIGHT)*2)/2 - USER_AREA_HEIGHT/2), 
+		new Point((CAMERA_WIDTH/2 - USER_AREA_WIDTH/2), CORNER_Y_MARGIN), 
+		new Point(CORNER_X_MARGIN, (CAMERA_HEIGHT-((int)Constants.FRAGMENT_HEIGHT)*2)/2 - USER_AREA_HEIGHT/2)};
 	// ===========================================================
 	// Fields
 	// ===========================================================
+
+	
 
 	private GameInformation mGameInformation;
 
@@ -82,9 +96,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private ITextureRegion mBoardWoodTextureRegion;
 
 	private Font mTileFont;
+	private Font mUserAreaFont;
 
 	private Board mBoard;
 	private Map<TableCorner, CornerTileStackRectangle> mCornerStacks;
+	private Map<Position, UserInfoArea> mUserAreas;
 	private Rectangle mCenterArea;
 
 	private Scene mScene;
@@ -134,9 +150,12 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		bitmapTextureAtlas.load();
 
 		// Load Fonts
-		this.mTileFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 48, Color.WHITE);
+		this.mTileFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 48, true, Color.WHITE);
 		this.mTileFont.load();
 
+		this.mUserAreaFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 20, true, Color.WHITE);
+		this.mUserAreaFont.load();
+		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 
@@ -171,6 +190,17 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				this.getVertexBufferObjectManager());
 		this.mCenterArea.setAlpha(0f);
 		mScene.attachChild(this.mCenterArea);
+		// Create User Info Areas
+		this.mUserAreas = new HashMap<Position, UserInfoArea>();
+		position = Player.getPlayer().getPosition();
+		for(int i=0;i < 4;i++){
+			final Point point = USER_AREA_POINTS[i];
+			final UserInfoArea userArea = new UserInfoArea(point.x, point.y, USER_AREA_WIDTH, USER_AREA_HEIGHT, this.getVertexBufferObjectManager(), this.mUserAreaFont);
+			mScene.attachChild(userArea);
+			this.mUserAreas.put(position, userArea);
+			position = TableCorner.nextCornerFromPosition(position).nextPosition();
+		}
+		
 
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
 		mScene.setTouchAreaBindingOnActionMoveEnabled(true);
@@ -188,7 +218,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	public synchronized void onGameCreated() {
 		super.onGameCreated();
 
-		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea);
+		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea, this.mUserAreas);
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		webSocket.setEventHandler(new OkeyWebSocketEventHandler(this));
 
@@ -328,6 +358,25 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			}
 		});
 	}
+
+	public void newUserMessage(final NewUserResponse pNewUserResponse) {
+		final User user = new User(pNewUserResponse.getUserName(), pNewUserResponse.getPosition());
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mTableManager.setUserAt(user.getPosition(), user);
+			}
+		});
+	}
+	public void userLeaveMessage(final UserLeaveResponse pUserLeaveResponse){
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mTableManager.clearUserAt(pUserLeaveResponse.getPosition());
+			}
+		});
+	}
+	
 
 	// ===========================================================
 	// Inner and Anonymous Classes
