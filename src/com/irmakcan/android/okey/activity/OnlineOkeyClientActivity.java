@@ -219,6 +219,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		super.onGameCreated();
 
 		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea, this.mUserAreas);
+		this.mTableManager.setUserAt(Player.getPlayer().getPosition(), Player.getPlayer());
+		for(User user : this.mGameInformation.getUserList()){
+			this.mTableManager.setUserAt(user.getPosition(), user);
+		}
 		WebSocket webSocket = WebSocketProvider.getWebSocket();
 		webSocket.setEventHandler(new OkeyWebSocketEventHandler(this));
 
