@@ -14,8 +14,12 @@ public class UserInfoArea extends Rectangle {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	private final int MAXIMUM_CHARACTERS = 12;
-	private final Color TEXT_COLOR = new Color(0.5f, 0.1f, 0.4f);
+	private static final int MAXIMUM_CHARACTERS = 12;
+	private static final Color TEXT_COLOR = new Color(0.5f, 0.1f, 0.4f);
+	private static final Color BACKGROUND_COLOR = new Color(0.863f, 0.925f, 0.824f);
+	private static final Color ENABLED_BACKGROUND_COLOR = new Color(0.702f, 0.808f, 0.984f);
+	private static final float BACKGROUND_ALPHA = 0.5f;
+	private static final float ENABLED_BACKGROUND_ALPHA = 0.9f;
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -31,6 +35,8 @@ public class UserInfoArea extends Rectangle {
 		mUserNameText.setColor(TEXT_COLOR);
 		mUserNameText.setPosition((this.getWidth()/2)-(mUserNameText.getWidth()/2), (this.getHeight()/2)-(mUserNameText.getHeight()/2)); // TODO
 		this.attachChild(mUserNameText);
+		this.setColor(BACKGROUND_COLOR);
+		this.setAlpha(BACKGROUND_ALPHA);
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -43,13 +49,22 @@ public class UserInfoArea extends Rectangle {
 	// ===========================================================
 	// Methods
 	// ===========================================================
+	public void setEnabled(final boolean pEnabled){
+		if(pEnabled){
+			this.setColor(ENABLED_BACKGROUND_COLOR);
+			this.setAlpha(ENABLED_BACKGROUND_ALPHA);
+		}else{
+			this.setColor(BACKGROUND_COLOR);
+			this.setAlpha(BACKGROUND_ALPHA);
+		}
+	}
+	
 	public void setTextFrom(final User pUser){
 		if(pUser == null || pUser.getUserName() == null){
 			this.setText("");
 		}else{
 			this.setText(pUser.getUserName());
 		}
-
 	}
 	private void setText(String pText) {
 		if(pText.length() > MAXIMUM_CHARACTERS){

@@ -31,6 +31,7 @@ public class TileSprite extends Sprite {
 
 	private float mOldX;
 	private float mOldY;
+	private int mOldZIndex;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -75,7 +76,8 @@ public class TileSprite extends Sprite {
 			case TouchEvent.ACTION_DOWN:
 				this.mOldX = this.getX();
 				this.mOldY = this.getY();
-				this.setZIndex(1);
+				this.mOldZIndex = this.getZIndex();
+				this.setZIndex(35);
 				this.getParent().sortChildren();
 				break;
 			case TouchEvent.ACTION_UP:
@@ -114,7 +116,7 @@ public class TileSprite extends Sprite {
 				}else{
 					this.setPosition(mOldX, mOldY);// Send it back where it comes from
 				}
-				this.setZIndex(0);
+				this.setZIndex(this.mOldZIndex);
 				this.getParent().sortChildren();
 				break;
 			default: // Set its position where it is picked up

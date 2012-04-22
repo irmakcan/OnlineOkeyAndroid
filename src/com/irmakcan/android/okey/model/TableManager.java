@@ -82,6 +82,10 @@ public class TableManager implements IPendingOperation {
 		return mTurn;
 	}
 	public void setTurn(Position pTurn) {
+		if(this.mTurn != null){
+			this.mUserAreas.get(this.mTurn).setEnabled(false);
+		}
+		this.mUserAreas.get(pTurn).setEnabled(true);
 		this.mTurn = pTurn;
 	}
 	public int getCenterCount() {

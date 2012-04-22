@@ -100,13 +100,13 @@ public class OkeyWebSocketEventHandler implements WebSocketEventHandler {
 					.create();
 			final WonResponse wonResponse = gson.fromJson(message.getText(), WonResponse.class);
 			Log.v(LOG_TAG, wonResponse.getStatus());
-			Log.v(LOG_TAG, wonResponse.getTurn().toString());
-			Log.v(LOG_TAG, wonResponse.getUsername().toString());
-			for(Tile[] group : wonResponse.getHand()){
-				for(Tile t : group){
-					Log.v(LOG_TAG, t.toString());
-				}
-			}
+//			Log.v(LOG_TAG, wonResponse.getTurn().toString()); // null for tie TODO
+//			Log.v(LOG_TAG, wonResponse.getUsername().toString());
+//			for(Tile[] group : wonResponse.getHand()){
+//				for(Tile t : group){
+//					Log.v(LOG_TAG, t.toString());
+//				}
+//			}
 			this.mOnlineOkeyClientActivity.userWonMessage(wonResponse);
 		} else if(status.equals("chat")){
 			// {"status":"chat","position":"south","message":"Hi, this is a chat message"}
