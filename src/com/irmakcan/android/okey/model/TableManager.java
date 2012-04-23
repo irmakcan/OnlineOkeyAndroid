@@ -14,6 +14,7 @@ import com.irmakcan.android.okey.gui.Board;
 import com.irmakcan.android.okey.gui.BoardFragment;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
 import com.irmakcan.android.okey.gui.IPendingOperation;
+import com.irmakcan.android.okey.gui.TileCountText;
 import com.irmakcan.android.okey.gui.TileSprite;
 import com.irmakcan.android.okey.gui.UserInfoArea;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
@@ -30,6 +31,7 @@ public class TableManager implements IPendingOperation {
 	
 	private final Map<Position, User> mUsers;
 	private final Map<Position, UserInfoArea> mUserAreas;
+	private TileCountText mTileCountText;
 	
 	private Map<TableCorner, CornerTileStackRectangle> mCorners;
 	private Tile mIndicator;
@@ -42,18 +44,18 @@ public class TableManager implements IPendingOperation {
 	private IPendingOperation mIPendingOperation;
 	
 	private Position mTurn;
-
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 	public TableManager(final Position pPosition, final Board pBoard, 
 			final Map<TableCorner, CornerTileStackRectangle> pCorners, final Rectangle pCenterArea,
-			final Map<Position, UserInfoArea> pUserAreas) {
+			final Map<Position, UserInfoArea> pUserAreas, final TileCountText pTileCountText) {
 		this.mBoard = pBoard;
 		this.mCorners = pCorners;
 		this.mPosition = pPosition;
 		this.mCenterArea = pCenterArea;
 		this.mUserAreas = pUserAreas;
+		this.mTileCountText = pTileCountText;
 		this.mUsers = new HashMap<Position, User>();
 	}
 	// ===========================================================
@@ -88,13 +90,14 @@ public class TableManager implements IPendingOperation {
 		this.mUserAreas.get(pTurn).setEnabled(true);
 		this.mTurn = pTurn;
 	}
-	public int getCenterCount() {
-		return this.mCenterCount;
-	}
 	public Rectangle getCenterArea(){
 		return this.mCenterArea;
 	}
+	public int getCenterCount() {
+		return this.mCenterCount;
+	}
 	public void setCenterCount(int pCenterCount) {
+		mTileCountText.setCount(pCenterCount);
 		this.mCenterCount = pCenterCount;
 	}
 	public CornerTileStackRectangle getCornerStack(final TableCorner pTableCorner){
@@ -104,11 +107,11 @@ public class TableManager implements IPendingOperation {
 	public User getUserAt(Position pPosition){
 		return mUsers.get(pPosition);
 	}
-	public void setUserAt(Position pPosition, User pUser){ // TODO
+	public void setUserAt(Position pPosition, User pUser){
 		mUsers.put(pPosition, pUser);
 		mUserAreas.get(pPosition).setTextFrom(pUser);
 	}
-	public void clearUserAt(Position pPosition){ // TODO
+	public void clearUserAt(Position pPosition){
 		mUserAreas.get(pPosition).setTextFrom(null);
 	}
 	// ===========================================================

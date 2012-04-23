@@ -50,6 +50,7 @@ import com.irmakcan.android.okey.gui.BlankTileSprite;
 import com.irmakcan.android.okey.gui.Board;
 import com.irmakcan.android.okey.gui.Constants;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
+import com.irmakcan.android.okey.gui.TileCountText;
 import com.irmakcan.android.okey.gui.TileSprite;
 import com.irmakcan.android.okey.gui.UserInfoArea;
 import com.irmakcan.android.okey.model.GameInformation;
@@ -113,6 +114,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private Map<TableCorner, CornerTileStackRectangle> mCornerStacks;
 	private Map<Position, UserInfoArea> mUserAreas;
 	private Rectangle mCenterArea;
+	private TileCountText mTileCountText;
 
 	private Scene mScene;
 
@@ -212,6 +214,9 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			this.mUserAreas.put(position, userArea);
 			position = TableCorner.nextCornerFromPosition(position).nextPosition();
 		}
+		// Create Center Tile Count
+		this.mTileCountText = new TileCountText(CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
+				(CAMERA_HEIGHT - mBoard.getHeight())/2 - Constants.TILE_HEIGHT/2, mTileFont, getVertexBufferObjectManager()); 
 		
 
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
@@ -230,7 +235,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	public synchronized void onGameCreated() {
 		super.onGameCreated();
 
-		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea, this.mUserAreas);
+		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea, this.mUserAreas, this.mTileCountText);
 		this.mTableManager.setUserAt(Player.getPlayer().getPosition(), Player.getPlayer());
 		for(User user : this.mGameInformation.getUserList()){
 			this.mTableManager.setUserAt(user.getPosition(), user);
@@ -352,7 +357,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				mScene.registerTouchArea(blankTileSprite);
 				blankTileSprite.enableTouch();
 				mScene.attachChild(blankTileSprite);
-
+				
+				// Center Tile Count
+				mTileCountText.setPosition(blankTileSprite.getX(), blankTileSprite.getY()); // TODO
+				mScene.attachChild(mTileCountText);
+				
 				for(Tile tile : pGameStartResponse.getUserHand()){
 					TileSprite ts = createNewTileSprite(tile);
 					mScene.registerTouchArea(ts);
