@@ -458,7 +458,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			@Override
 			public void run() {
 				Toast.makeText(OnlineOkeyClientActivity.this, 
-						mTableManager.getUserAt(pChatResponse.getPosition()) + ": " + pChatResponse.getMessage(), 
+						mTableManager.getUserAt(pChatResponse.getPosition()).getUserName() + ": " + pChatResponse.getMessage(), 
 						Toast.LENGTH_LONG)
 						.show();
 			}
