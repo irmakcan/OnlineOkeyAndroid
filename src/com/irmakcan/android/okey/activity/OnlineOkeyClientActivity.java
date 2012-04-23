@@ -265,6 +265,13 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	}
 	
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		if(this.mTableManager.getTurn() != null){
+			menu.getItem(1).setEnabled(false);
+		}
+		return true;
+	}
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 	    inflater.inflate(R.menu.game_menu, menu);
@@ -277,9 +284,9 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	        case R.id.game_menu_chat:
 	            showChatWindow();
 	            return true;
-//	        case R.id.help:
-//	            showHelp();
-//	            return true;
+	        case R.id.game_menu_force_start:
+	            sendForceStartMessage();
+	            return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
@@ -287,6 +294,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	// ===========================================================
 	// Methods
 	// ===========================================================
+
+	
 
 	private void showChatWindow(){
 		AlertDialog.Builder builder;
@@ -321,6 +330,15 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private void sendChatMessage(String string) {
 		try {
 			JSONObject json = new JSONObject().put("action", "chat").put("message", string);
+			WebSocketProvider.getWebSocket().send(json.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void sendForceStartMessage() {
+		try {
+			JSONObject json = new JSONObject().put("action", "force_start");
 			WebSocketProvider.getWebSocket().send(json.toString());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -439,7 +457,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(OnlineOkeyClientActivity.this, /*mTableManager.getUser().username TODO */pChatResponse.getMessage(), Toast.LENGTH_LONG).show();
+				Toast.makeText(OnlineOkeyClientActivity.this, 
+						mTableManager.getUserAt(pChatResponse.getPosition()) + ": " + pChatResponse.getMessage(), 
+						Toast.LENGTH_LONG)
+						.show();
 			}
 		});
 	}

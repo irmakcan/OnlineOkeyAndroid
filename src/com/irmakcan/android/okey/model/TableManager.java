@@ -81,7 +81,7 @@ public class TableManager implements IPendingOperation {
 		this.mIndicator = pIndicator;
 	}
 	public Position getTurn() {
-		return mTurn;
+		return this.mTurn;
 	}
 	public void setTurn(Position pTurn) {
 		if(this.mTurn != null){

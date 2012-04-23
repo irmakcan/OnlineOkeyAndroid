@@ -33,4 +33,5 @@
 	
 	<!-- Game Menu -->
 	<string name="game_menu_chat">Write Message</string>
+	<string name="game_menu_force_start">Start Game Now</string>
 </resources>
