@@ -120,7 +120,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private Font mRemainingTimeFont;
 
-
+	private boolean mDoubleBackToExitPressedOnce;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -144,6 +144,12 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		Log.v(LOG_TAG, "Table Name: " + this.mGameInformation.getTableName() + " timeout interval: " + this.mGameInformation.getTimeoutInterval());
 	}
 
+	@Override
+	protected synchronized void onResume() {
+		super.onResume();
+		this.mDoubleBackToExitPressedOnce = false;
+	}
+	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
@@ -263,12 +269,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		try {
-			JSONObject json = new JSONObject().put("action", "leave_room");
-			WebSocketProvider.getWebSocket().send(json.toString());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
 	}
 	
 	@Override
@@ -297,6 +298,22 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
+	}
+	@Override
+	public void onBackPressed() {
+		if(this.mDoubleBackToExitPressedOnce) {
+	        super.onBackPressed();
+	        // Send user leave message
+	        try {
+				JSONObject json = new JSONObject().put("action", "leave_room");
+				WebSocketProvider.getWebSocket().send(json.toString());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	        return;
+	    }
+	    this.mDoubleBackToExitPressedOnce = true;
+	    Toast.makeText(this, "Press again to exit room " + this.mGameInformation.getTableName(), Toast.LENGTH_SHORT).show();
 	}
 	// ===========================================================
 	// Methods
@@ -505,13 +522,15 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	}
 
 	public void forceExitMessage() {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(OnlineOkeyClientActivity.this.getApplicationContext(), "You have been kicked from the table, because of inactivity", Toast.LENGTH_LONG).show();
-				OnlineOkeyClientActivity.this.finish();
-			}
-		});
+		if(!OnlineOkeyClientActivity.this.isFinishing()){
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Toast.makeText(OnlineOkeyClientActivity.this.getApplicationContext(), "You have been kicked from the table, because of inactivity", Toast.LENGTH_LONG).show();
+					OnlineOkeyClientActivity.this.finish();
+				}
+			});
+		}
 	}
 	// ===========================================================
 	// Inner and Anonymous Classes
