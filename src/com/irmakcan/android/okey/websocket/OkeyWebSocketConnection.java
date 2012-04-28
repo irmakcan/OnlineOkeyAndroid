@@ -2,55 +2,42 @@ package com.irmakcan.android.okey.websocket;
 
 import java.net.URI;
 
-import de.roderick.weberknecht.WebSocket;
+import android.util.Log;
+
+import de.roderick.weberknecht.WebSocketConnection;
 import de.roderick.weberknecht.WebSocketException;
 
-public class WebSocketProvider {
+public class OkeyWebSocketConnection extends WebSocketConnection{
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	
+	private static final String LOG_TAG = "OkeyWebSocketConnection";
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	protected static WebSocket mWebSocket;
 	
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	protected WebSocketProvider() {
-		
+	public OkeyWebSocketConnection(URI url, String protocol) throws WebSocketException {
+		super(url, protocol);
+	}
+
+	public OkeyWebSocketConnection(URI url) throws WebSocketException {
+		super(url);
 	}
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public static WebSocket createWebSocketConnection(URI pURI) throws WebSocketException {
-		try {
-			if(mWebSocket != null && mWebSocket.isConnected()){
-				mWebSocket.close();
-			}
-		} catch (WebSocketException e){
-			e.printStackTrace(); // Do nothing
-		}
-		mWebSocket = new OkeyWebSocketConnection(pURI);
-		return mWebSocket;
-	}
-	
-	public static WebSocket getWebSocket(){
-		if(mWebSocket == null){
-			throw new IllegalStateException("WebSocket should be created first");
-		}
-		return mWebSocket;
-	}
-	
-	public static void setWebSocket(final WebSocket pWebSocket){
-		mWebSocket = pWebSocket;
-	}
 	
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces
 	// ===========================================================
-	
+	@Override
+	public synchronized void send(String data) throws WebSocketException {
+		super.send(data);
+		Log.v(LOG_TAG, "Message Sent: " + data);
+	}
 	// ===========================================================
 	// Methods
 	// ===========================================================
