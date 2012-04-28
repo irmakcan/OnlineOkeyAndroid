@@ -25,7 +25,7 @@ public class MockStarterOkeyClientActivity extends Activity{
 		
 		Intent i = new Intent(this, OnlineOkeyClientActivity.class);
 		List<User> userList = new ArrayList<User>();
-		i.putExtra("game_information", new GameInformation("RoomName", userList)); // TODO
+		i.putExtra("game_information", new GameInformation("RoomName", userList, 30)); // TODO
 		Player.getPlayer().setPosition(Position.SOUTH);
 		startActivity(i);
 		

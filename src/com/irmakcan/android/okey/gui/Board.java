@@ -141,17 +141,6 @@ public class Board extends Rectangle {
 		pTileSprite.setIHolder(bf);
 		//pTileSprite.setPosition(this.getX() + bf.getX(), this.getY() + bf.getY());
 	}
-	public boolean addChild(final TileSprite pTileSprite, int pLocation) { // TODO shift tiles
-		if(pLocation < 0 || pLocation > 2*FRAGMENT_PER_LANE){
-			throw new IllegalArgumentException("Location " + pLocation + " is out of bound");
-		}
-		BoardFragment bf = (pLocation < FRAGMENT_PER_LANE ? mLane1[pLocation] : mLane2[pLocation % FRAGMENT_PER_LANE]);
-		if(bf.hasTileSprite()){
-			return false;
-		}
-		bf.addTileSprite(pTileSprite);
-		return true;
-	}
 	
 	public synchronized BoardFragment addChild(final TileSprite pTileSprite, final float pX, final float pY){
 		Log.v(LOG_TAG, "pX: " + pX + " pY: " + pY);
@@ -172,6 +161,26 @@ public class Board extends Rectangle {
 			return false;
 		}
 		return true;
+	}
+	
+	public TileSprite getFirstTileSprite(final Tile pTile){
+		for(int i=0;i < FRAGMENT_PER_LANE;i++){
+			if(mLane1[i].hasTileSprite()){
+				TileSprite ts = mLane1[i].getTileSprite();
+				if(ts.getTile().equals(pTile)){
+					return ts;
+				}
+			}
+		}
+		for(int i=0;i < FRAGMENT_PER_LANE;i++){
+			if(mLane2[i].hasTileSprite()){
+				TileSprite ts = mLane2[i].getTileSprite();
+				if(ts.getTile().equals(pTile)){
+					return ts;
+				}
+			}
+		}
+		throw new IllegalStateException("Tile " + pTile.toString() + " cannot be found on the board."); 
 	}
 	
 	private int getColumn(final float pX){

@@ -28,11 +28,11 @@ public class TableManager implements IPendingOperation {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	
+
 	private final Map<Position, User> mUsers;
 	private final Map<Position, UserInfoArea> mUserAreas;
 	private TileCountText mTileCountText;
-	
+
 	private Map<TableCorner, CornerTileStackRectangle> mCorners;
 	private Tile mIndicator;
 
@@ -40,22 +40,24 @@ public class TableManager implements IPendingOperation {
 	private final Board mBoard;
 	private final Position mPosition;
 	private final Rectangle mCenterArea;
-	
+	private final int mTimeoutInterval;
+
 	private IPendingOperation mIPendingOperation;
-	
+
 	private Position mTurn;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 	public TableManager(final Position pPosition, final Board pBoard, 
 			final Map<TableCorner, CornerTileStackRectangle> pCorners, final Rectangle pCenterArea,
-			final Map<Position, UserInfoArea> pUserAreas, final TileCountText pTileCountText) {
+			final Map<Position, UserInfoArea> pUserAreas, final TileCountText pTileCountText, final int pTimeoutInterval) {
 		this.mBoard = pBoard;
 		this.mCorners = pCorners;
 		this.mPosition = pPosition;
 		this.mCenterArea = pCenterArea;
 		this.mUserAreas = pUserAreas;
 		this.mTileCountText = pTileCountText;
+		this.mTimeoutInterval = pTimeoutInterval;
 		this.mUsers = new HashMap<Position, User>();
 	}
 	// ===========================================================
@@ -84,10 +86,12 @@ public class TableManager implements IPendingOperation {
 		return this.mTurn;
 	}
 	public void setTurn(Position pTurn) {
-		if(this.mTurn != null){
+		if(this.mTurn != null){ // Clear the previous player
 			this.mUserAreas.get(this.mTurn).setEnabled(false);
+			this.mUserAreas.get(this.mTurn).stopTimer();
 		}
 		this.mUserAreas.get(pTurn).setEnabled(true);
+		this.mUserAreas.get(pTurn).startTimer(this.mTimeoutInterval);
 		this.mTurn = pTurn;
 	}
 	public Rectangle getCenterArea(){
@@ -103,7 +107,7 @@ public class TableManager implements IPendingOperation {
 	public CornerTileStackRectangle getCornerStack(final TableCorner pTableCorner){
 		return mCorners.get(pTableCorner);
 	}
-	
+
 	public User getUserAt(Position pPosition){
 		return mUsers.get(pPosition);
 	}
@@ -134,9 +138,21 @@ public class TableManager implements IPendingOperation {
 	// ===========================================================
 	// Methods
 	// ===========================================================
-//	public void initializeGame(final Position pTurn, final int pCenterCount, final List<Tile> pUserHand, final Tile pIndicator) {
-//		
-//	}
+
+	public void forceDrawCenter(final TileSprite pTileSprite){
+		this.mBoard.addChild(pTileSprite);
+	}
+	public void forceDrawLeft(){
+		final TileSprite ts = this.mCorners.get(TableCorner.previousCornerFromPosition(this.mPosition)).pop();
+		this.mBoard.addChild(ts);
+	}
+	public void forceThrow(Tile tile) {
+		TileSprite tileSprite = this.mBoard.getFirstTileSprite(tile);
+		tileSprite.getIHolder().removeTileSprite();
+		tileSprite.disableTouch();
+		this.mCorners.get(TableCorner.nextCornerFromPosition(this.mPosition)).push(tileSprite);
+	}
+
 	public synchronized boolean setPendingOperation(final IPendingOperation pIPendingOperation){
 		if(this.mIPendingOperation != null){
 			return false;
@@ -144,7 +160,10 @@ public class TableManager implements IPendingOperation {
 		this.mIPendingOperation = pIPendingOperation;
 		return true;
 	}
-	
+	public synchronized IPendingOperation getPendingOperation(){
+		return this.mIPendingOperation;
+	}
+
 	public void drawCenterTile(IPendingOperation pIPendingOperation) {
 		if(!this.setPendingOperation(pIPendingOperation)){
 			pIPendingOperation.cancelPendingOperation();
@@ -214,7 +233,7 @@ public class TableManager implements IPendingOperation {
 					}
 					hand.put(group);
 				}
-				
+
 				JSONObject json = new JSONObject().put("action", "throw_to_finish")
 						.put("hand", hand).put("tile", pTile.toString());
 				Log.v(LOG_TAG, "Sending data: " + json.toString());//TODO
@@ -242,8 +261,5 @@ public class TableManager implements IPendingOperation {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-	
-	
-	
-	
+
 }

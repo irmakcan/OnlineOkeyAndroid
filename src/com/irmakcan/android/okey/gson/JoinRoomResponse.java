@@ -2,6 +2,7 @@ package com.irmakcan.android.okey.gson;
 
 import java.util.List;
 
+import com.google.gson.annotations.SerializedName;
 import com.irmakcan.android.okey.model.Position;
 import com.irmakcan.android.okey.model.User;
 
@@ -15,6 +16,7 @@ public class JoinRoomResponse extends BaseResponse{
 	// ===========================================================
 	private Position position;
 	private List<User> users;
+	@SerializedName("play_timeout") private int timeoutInterval;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -33,6 +35,12 @@ public class JoinRoomResponse extends BaseResponse{
 	}
 	public void setUsers(List<User> users) {
 		this.users = users;
+	}
+	public int getTimeoutInterval() {
+		return timeoutInterval;
+	}
+	public void setTimeoutInterval(int timeoutInterval) {
+		this.timeoutInterval = timeoutInterval;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces

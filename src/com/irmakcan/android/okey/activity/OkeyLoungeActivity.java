@@ -225,7 +225,7 @@ public class OkeyLoungeActivity extends Activity{
 				}
 
 				Intent i = new Intent(OkeyLoungeActivity.this, OnlineOkeyClientActivity.class);
-				i.putExtra("game_information", new GameInformation(mQueuedRoomName, joinRoomResponse.getUsers())); // TODO
+				i.putExtra("game_information", new GameInformation(mQueuedRoomName, joinRoomResponse.getUsers(), joinRoomResponse.getTimeoutInterval())); // TODO
 				Player.getPlayer().setPosition(joinRoomResponse.getPosition());
 				startActivity(i);
 			}else{

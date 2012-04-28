@@ -77,8 +77,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private static final int TILE_WIDTH = 56;
 	private static final int TILE_HEIGHT = 84;
 	
-	private static final int USER_AREA_WIDTH = 140;
-	private static final int USER_AREA_HEIGHT = 22;
+	private static final int USER_AREA_WIDTH = Constants.USER_AREA_WIDTH;
+	private static final int USER_AREA_HEIGHT = Constants.USER_AREA_HEIGHT;
 
 	private static final int CORNER_X_MARGIN = 30;
 	private static final int CORNER_Y_MARGIN = 20;
@@ -92,6 +92,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		new Point((CAMERA_WIDTH - (USER_AREA_WIDTH + CORNER_X_MARGIN)), (CAMERA_HEIGHT-((int)Constants.FRAGMENT_HEIGHT)*2)/2 - USER_AREA_HEIGHT/2), 
 		new Point((CAMERA_WIDTH/2 - USER_AREA_WIDTH/2), CORNER_Y_MARGIN), 
 		new Point(CORNER_X_MARGIN, (CAMERA_HEIGHT-((int)Constants.FRAGMENT_HEIGHT)*2)/2 - USER_AREA_HEIGHT/2)};
+	private static final UserInfoArea.Position[] USER_AREA_POSITIONS = new UserInfoArea.Position[]{ UserInfoArea.Position.BOTTOM,
+		UserInfoArea.Position.RIGHT, UserInfoArea.Position.TOP, UserInfoArea.Position.LEFT };
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -101,8 +103,6 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private GameInformation mGameInformation;
 
 	private TableManager mTableManager;
-
-
 
 	private ITextureRegion mTileTextureRegion;
 	private ITextureRegion mBoardWoodTextureRegion;
@@ -117,6 +117,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private TileCountText mTileCountText;
 
 	private Scene mScene;
+
+	private Font mRemainingTimeFont;
 
 
 	// ===========================================================
@@ -139,7 +141,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		}else{
 			this.mGameInformation = (GameInformation) b.getSerializable("game_information");
 		}
-		Log.v(LOG_TAG, "Table Name: " + this.mGameInformation.getTableName());
+		Log.v(LOG_TAG, "Table Name: " + this.mGameInformation.getTableName() + " timeout interval: " + this.mGameInformation.getTimeoutInterval());
 	}
 
 	@Override
@@ -168,6 +170,9 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 		this.mUserAreaFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 20, true, Color.WHITE);
 		this.mUserAreaFont.load();
+		
+		this.mRemainingTimeFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 16, true, Color.WHITE);
+		this.mRemainingTimeFont.load();
 		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
@@ -209,7 +214,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		position = Player.getPlayer().getPosition();
 		for(int i=0;i < 4;i++){
 			final Point point = USER_AREA_POINTS[i];
-			final UserInfoArea userArea = new UserInfoArea(point.x, point.y, USER_AREA_WIDTH, USER_AREA_HEIGHT, this.getVertexBufferObjectManager(), this.mUserAreaFont);
+			final UserInfoArea userArea = new UserInfoArea(point.x, point.y, USER_AREA_WIDTH, USER_AREA_HEIGHT, 
+					this.getVertexBufferObjectManager(), this.mUserAreaFont, this.mRemainingTimeFont, USER_AREA_POSITIONS[i]);
 			mScene.attachChild(userArea);
 			this.mUserAreas.put(position, userArea);
 			position = TableCorner.nextCornerFromPosition(position).nextPosition();
@@ -235,7 +241,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	public synchronized void onGameCreated() {
 		super.onGameCreated();
 
-		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, this.mCenterArea, this.mUserAreas, this.mTileCountText);
+		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, 
+				this.mCenterArea, this.mUserAreas, this.mTileCountText, this.mGameInformation.getTimeoutInterval());
 		this.mTableManager.setUserAt(Player.getPlayer().getPosition(), Player.getPlayer());
 		for(User user : this.mGameInformation.getUserList()){
 			this.mTableManager.setUserAt(user.getPosition(), user);
@@ -397,32 +404,42 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			@Override
 			public void run() {
 				if(mTableManager.getUserPosition() == pDrawTileResponse.getTurn()){ // Drawn by user (center or corner)
-					if(mTableManager.getCenterCount() == pDrawTileResponse.getCenterCount()){
-						mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
+					if(mTableManager.getPendingOperation() == null){ // Forced by server
+						if(mTableManager.getCenterCount() == pDrawTileResponse.getCenterCount()){
+							mTableManager.forceDrawLeft();
+						}else{
+							TileSprite tileSprite = createNewTileSprite(pDrawTileResponse.getTile());
+							mScene.registerTouchArea(tileSprite);
+							tileSprite.enableTouch();
+							mScene.attachChild(tileSprite);
+							mTableManager.forceDrawCenter(tileSprite);
+						}
 					}else{
-						TileSprite tileSprite = createNewTileSprite(pDrawTileResponse.getTile());
-						mScene.registerTouchArea(tileSprite);
-						tileSprite.enableTouch();
-						mScene.attachChild(tileSprite);
-						mTableManager.pendingOperationSuccess(tileSprite);
+						if(mTableManager.getCenterCount() == pDrawTileResponse.getCenterCount()){
+							mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
+						}else{
+							TileSprite tileSprite = createNewTileSprite(pDrawTileResponse.getTile());
+							mScene.registerTouchArea(tileSprite);
+							tileSprite.enableTouch();
+							mScene.attachChild(tileSprite);
+							mTableManager.pendingOperationSuccess(tileSprite);
+						}
 					}
 				} else {
 					if(mTableManager.getCenterCount() == pDrawTileResponse.getCenterCount()){ // Drawn from corner
 						CornerTileStackRectangle tileStack = mTableManager.getCornerStack(TableCorner.previousCornerFromPosition(pDrawTileResponse.getTurn()));
 						final TileSprite tileSprite = tileStack.pop();
 						tileSprite.dispose();
-						//mScene.unregisterTouchArea(tileSprite); TODO test
 						runOnUpdateThread(new Runnable() {
 							@Override
 							public void run() {
 								tileSprite.detachSelf();
 							}
 						});
-					} else { // Drawn from center
-						// TODO
-					}
+					} //else Drawn from center
 				}
 				mTableManager.setCenterCount(pDrawTileResponse.getCenterCount());
+				mTableManager.setTurn(pDrawTileResponse.getTurn());
 			}
 		});
 	}
@@ -432,8 +449,12 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			@Override
 			public void run() {
 				if(TableCorner.nextCornerFromPosition(mTableManager.getUserPosition()) == prevCorner){ // Tile thrown by this user
-					mTableManager.setTurn(pThrowTileResponse.getTurn());
-					mTableManager.pendingOperationSuccess(mTableManager.getCornerStack(prevCorner));
+					if(mTableManager.getPendingOperation() == null){ // Force thrown
+						mTableManager.forceThrow(pThrowTileResponse.getTile());
+					}else{
+						mTableManager.setTurn(pThrowTileResponse.getTurn());
+						mTableManager.pendingOperationSuccess(mTableManager.getCornerStack(prevCorner));
+					}
 				} else {
 					TileSprite tileSprite = createNewTileSprite(pThrowTileResponse.getTile());
 					if(pThrowTileResponse.getTurn() == mTableManager.getUserPosition()){

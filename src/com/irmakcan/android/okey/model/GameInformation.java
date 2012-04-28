@@ -14,7 +14,7 @@ public class GameInformation implements Serializable{
 	
 	private List<User> mUserList;
 	private String mTableName;
-	
+	private int mTimeoutInterval;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -22,9 +22,10 @@ public class GameInformation implements Serializable{
 	public GameInformation() {
 		// TODO Auto-generated constructor stub
 	}
-	public GameInformation(String pTableName, List<User> pUserList) {
+	public GameInformation(String pTableName, List<User> pUserList, int pTimeoutInterval) {
 		this.mUserList = pUserList;
 		this.mTableName = pTableName; 
+		this.mTimeoutInterval = pTimeoutInterval;
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -43,6 +44,13 @@ public class GameInformation implements Serializable{
 
 	public void setTableName(String pTableName) {
 		this.mTableName = pTableName;
+	}
+	
+	public int getTimeoutInterval() {
+		return this.mTimeoutInterval;
+	}
+	public void setTimeoutInterval(int pTimeoutInterval) {
+		this.mTimeoutInterval = pTimeoutInterval;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces

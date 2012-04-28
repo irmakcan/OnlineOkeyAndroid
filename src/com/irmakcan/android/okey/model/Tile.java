@@ -33,6 +33,13 @@ public class Tile {
 	public String toString() {
 		return this.getValue() + ":" + this.getTileColor().getColorId();
 	}
+	@Override
+	public boolean equals(Object o) {
+		if(o instanceof Tile){
+			return this.toString().equals(((Tile)o).toString());
+		}
+		return super.equals(o);
+	}
 	// ===========================================================
 	// Methods
 	// ===========================================================

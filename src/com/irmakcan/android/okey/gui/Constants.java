@@ -12,6 +12,12 @@ public class Constants {
 	
 	public static final float FRAGMENT_WIDTH = TILE_WIDTH;
 	public static final float FRAGMENT_HEIGHT = TILE_HEIGHT + 10;
+	
+	public static final int USER_AREA_WIDTH = 140;
+	public static final int USER_AREA_HEIGHT = 22;
+	
+	public static final int TIMER_PADDING_X = 12;
+	public static final int TIMER_PADDING_Y = 12;
 	// ===========================================================
 	// Fields
 	// ===========================================================
