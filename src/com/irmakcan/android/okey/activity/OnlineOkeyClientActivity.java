@@ -503,8 +503,16 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			}
 		});
 	}
-	
 
+	public void forceExitMessage() {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(OnlineOkeyClientActivity.this.getApplicationContext(), "You have been kicked from the table, because of inactivity", Toast.LENGTH_LONG).show();
+				OnlineOkeyClientActivity.this.finish();
+			}
+		});
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================

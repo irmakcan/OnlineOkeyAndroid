@@ -123,6 +123,8 @@ public class OkeyWebSocketEventHandler implements WebSocketEventHandler {
 			gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer()).create();
 			final UserLeaveResponse userLeaveResponse = gson.fromJson(message.getText(), UserLeaveResponse.class);
 			this.mOnlineOkeyClientActivity.userLeaveMessage(userLeaveResponse);
+		} else if(status.equals("success")){
+			this.mOnlineOkeyClientActivity.forceExitMessage();
 		}
 	}
 	@Override
