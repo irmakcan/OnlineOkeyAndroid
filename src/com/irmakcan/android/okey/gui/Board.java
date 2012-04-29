@@ -15,7 +15,7 @@ public class Board extends Rectangle {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	private static final int FRAGMENT_PER_LANE = 12;
+	public static final int FRAGMENT_PER_LANE = 12;
 	private static final String LOG_TAG = "Board";
 	// ===========================================================
 	// Fields
@@ -151,6 +151,18 @@ public class Board extends Rectangle {
 		}
 		lane[column].addTileSprite(pTileSprite);
 		return lane[column];
+	}
+	
+	public boolean addChild(TileSprite pTileSprite, int pLocation){
+		if(pLocation < 0 || pLocation > 2*FRAGMENT_PER_LANE){
+			throw new IllegalArgumentException("Location " + pLocation + " is out of bound");
+		}
+		BoardFragment bf = (pLocation < FRAGMENT_PER_LANE ? mLane1[pLocation] : mLane2[pLocation % FRAGMENT_PER_LANE]);
+		if(bf.hasTileSprite()){
+			return false;
+		}
+		bf.addTileSprite(pTileSprite);
+		return true;
 	}
 	
 	public boolean isEmpty(final float pX, final float pY){

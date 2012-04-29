@@ -8,9 +8,13 @@ import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.scene.CameraScene;
+import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.TextureOptions;
@@ -116,11 +120,13 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private Rectangle mCenterArea;
 	private TileCountText mTileCountText;
 
+	private Camera mCamera; 
 	private Scene mScene;
 
 	private Font mRemainingTimeFont;
 
 	private boolean mDoubleBackToExitPressedOnce;
+	private volatile boolean mIsFinishing;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -152,8 +158,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
 	}
 
 	@Override
@@ -274,6 +280,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+		if(this.mIsFinishing){
+			menu.removeItem(R.id.game_menu_chat);
+			menu.removeItem(R.id.game_menu_force_start);
+			return true;
+		}
 		if(this.mTableManager.getTurn() != null){
 			menu.getItem(1).setEnabled(false);
 		}
@@ -303,13 +314,15 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	public void onBackPressed() {
 		if(this.mDoubleBackToExitPressedOnce) {
 	        super.onBackPressed();
-	        // Send user leave message
-	        try {
-				JSONObject json = new JSONObject().put("action", "leave_room");
-				WebSocketProvider.getWebSocket().send(json.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+	        if(!this.mIsFinishing){ // TODO test
+		        // Send user leave message
+		        try {
+					JSONObject json = new JSONObject().put("action", "leave_room");
+					WebSocketProvider.getWebSocket().send(json.toString());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+	        }
 	        return;
 	    }
 	    this.mDoubleBackToExitPressedOnce = true;
@@ -486,10 +499,68 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		});
 	}
 	public void userWonMessage(final WonResponse pWonResponse){
-		// Show tiles
-
-		// Finish game
-		OnlineOkeyClientActivity.this.finish();
+		this.mIsFinishing = true;
+		if(pWonResponse.getUsername() == null){ // Tie
+			this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Toast.makeText(getApplicationContext(), "Tie game, no remaining tile left", Toast.LENGTH_LONG).show();
+					OnlineOkeyClientActivity.this.finish();
+				}
+			});
+		}else{
+			this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					CameraScene popupScene = new CameraScene(OnlineOkeyClientActivity.this.mCamera);
+					popupScene.setBackgroundEnabled(false);
+					// Add Translucent Background
+					Rectangle translucentBackground = new Rectangle(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT, getVertexBufferObjectManager());
+					translucentBackground.setColor(0, 0, 0);
+					translucentBackground.setAlpha(0.7f);
+					popupScene.attachChild(translucentBackground);
+					
+					// Create new board
+					Board board = new Board(0, 0, mBoardWoodTextureRegion, getVertexBufferObjectManager());
+					board.setPosition((CAMERA_WIDTH/2)-(board.getWidth()/2), (CAMERA_HEIGHT/2)-(board.getHeight()/2));
+					popupScene.attachChild(board);
+					int location = 0;
+					for(Tile[] group : pWonResponse.getHand()){
+						if(location < Board.FRAGMENT_PER_LANE){
+							if(location + group.length > Board.FRAGMENT_PER_LANE){
+								location = Board.FRAGMENT_PER_LANE;
+							}
+						}
+						for(Tile tile : group){
+							TileSprite ts = new TileSprite(0, 0, mTileTextureRegion, getVertexBufferObjectManager(), tile, mTileFont, null);
+							ts.disableTouch();
+							popupScene.attachChild(ts);
+							board.addChild(ts, location);
+							location++;
+						}
+						location++;
+					}
+					// Create Won Text
+					Text userWonText = new Text(0, 0, mTileFont, pWonResponse.getUsername() + " won!", getVertexBufferObjectManager());
+					userWonText.setPosition((CAMERA_WIDTH/2)-(userWonText.getWidth()/2), (board.getY()/2)-(userWonText.getHeight()/2));
+					userWonText.setColor(0.8f, 0.8f, 0.8f);
+					popupScene.attachChild(userWonText);
+					// Add 
+					popupScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
+						@Override
+						public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
+							if(!OnlineOkeyClientActivity.this.isFinishing()){
+								// Finish game
+								OnlineOkeyClientActivity.this.finish();
+							}
+							return true;
+						}
+					});
+					OnlineOkeyClientActivity.this.mDoubleBackToExitPressedOnce = true; // To exit pressed once
+					mScene.setChildScene(popupScene);
+				}
+			});
+		}
 	}
 	public void chatMessage(final ChatResponse pChatResponse){
 		runOnUiThread(new Runnable() {
@@ -522,7 +593,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	}
 
 	public void forceExitMessage() {
-		if(!OnlineOkeyClientActivity.this.isFinishing()){
+		if(!OnlineOkeyClientActivity.this.isFinishing() && !this.mIsFinishing){
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {

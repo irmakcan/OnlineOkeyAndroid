@@ -74,8 +74,10 @@ public class MockWebSocket implements WebSocket {
 					this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 				}
 			} else if (action.equals("throw_tile")){
-				final String tile = json.getString("tile");
-				String response = "{\"status\":\"throw_tile\",\"tile\":\"" + tile + "\",\"turn\":\"east\"}";
+//				final String tile = json.getString("tile");
+//				String response = "{\"status\":\"throw_tile\",\"tile\":\"" + tile + "\",\"turn\":\"east\"}";
+				String response = "{\"status\":\"user_won\",\"turn\":\"east\",\"username\":\"user_name\",\"hand\":" +
+						"[[\"4:0\",\"7:3\",\"7:3\"],[\"4:0\",\"7:3\",\"7:3\",\"4:0\",\"7:3\"],[\"1:0\",\"2:0\",\"3:0\"],[\"4:0\",\"4:1\",\"4:2\"]]}";
 
 				this.mEventHandler.onMessage(new WebSocketMessage(getByteArray(response)));
 				
