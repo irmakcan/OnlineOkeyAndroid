@@ -27,6 +27,7 @@ public class CornerTileStackRectangle extends Rectangle {
 	public CornerTileStackRectangle(float pX, float pY, float pWidth, float pHeight, 
 			VertexBufferObjectManager pVertexBufferObjectManager, final TableCorner pTableCorner, final Scene pScene) {
 		super(pX, pY, pWidth, pHeight, pVertexBufferObjectManager);
+		this.setAlpha(0.7f);
 		this.setZIndex(0);
 		this.mTableCorner = pTableCorner;
 		this.mScene = pScene;
