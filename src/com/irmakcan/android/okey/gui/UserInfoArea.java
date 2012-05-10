@@ -100,7 +100,7 @@ public class UserInfoArea extends Rectangle {
 		if(pUser == null || pUser.getUserName() == null){
 			this.setText("");
 		}else{
-			this.setText(pUser.getUserName());
+			this.setText("(" + pUser.getPoints() + ") " + pUser.getUserName());
 		}
 	}
 	private void setText(String pText) {

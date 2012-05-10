@@ -1,8 +1,6 @@
 package com.irmakcan.android.okey.gson;
 
-import com.google.gson.annotations.SerializedName;
-
-public class NewUserResponse extends UserLeaveResponse {
+public class JoinLoungeResponse extends BaseResponse {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -10,27 +8,24 @@ public class NewUserResponse extends UserLeaveResponse {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-	@SerializedName("username") private String userName;
+	private String message;
 	private int points;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-
+	
 	// ===========================================================
 	// Getter & Setter
 	// ===========================================================
-	public String getUserName() {
-		return userName;
+	public String getMessage() {
+		return message;
 	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void setMessage(String message) {
+		this.message = message;
 	}
-	
 	public int getPoints() {
 		return points;
 	}
-
 	public void setPoints(int points) {
 		this.points = points;
 	}

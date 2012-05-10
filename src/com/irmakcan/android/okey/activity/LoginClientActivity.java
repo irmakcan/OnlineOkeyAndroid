@@ -29,7 +29,9 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.irmakcan.android.okey.R;
 import com.irmakcan.android.okey.gson.BaseResponse;
+import com.irmakcan.android.okey.gson.JoinLoungeResponse;
 import com.irmakcan.android.okey.http.task.LoginAsyncTask;
+import com.irmakcan.android.okey.model.Player;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
 import de.roderick.weberknecht.WebSocket;
@@ -202,8 +204,10 @@ public class LoginClientActivity extends Activity {
 			Log.v(LOG_TAG, "Message received: " + message.getText());
 			Gson gson = new Gson();
 			BaseResponse baseResponse = gson.fromJson(message.getText(), BaseResponse.class);
-			if(baseResponse.getStatus().equals("success")){
+			if(baseResponse.getStatus().equals("join_lounge")){
 				Log.v(LOG_TAG, "auth success");
+				JoinLoungeResponse joinLoungeResponse = gson.fromJson(message.getText(), JoinLoungeResponse.class);
+				Player.getPlayer().setPoints(joinLoungeResponse.getPoints());
 				Intent i = new Intent(LoginClientActivity.this, OkeyLoungeActivity.class);
 				startActivity(i);
 			}else{

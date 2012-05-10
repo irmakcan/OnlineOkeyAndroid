@@ -14,6 +14,7 @@ public class User implements Serializable {
 	// ===========================================================
 	@SerializedName("name") private String mUserName;
 	@SerializedName("position") private Position mPosition;
+	@SerializedName("points") private int mPoints;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -26,6 +27,10 @@ public class User implements Serializable {
 	public User(String pUserName, Position pPosition) {
 		this(pUserName);
 		this.mPosition = pPosition;
+	}
+	public User(String pUserName, Position pPosition, int pPoints) {
+		this(pUserName, pPosition);
+		this.mPoints = pPoints;
 	}
 	// ===========================================================
 	// Getter & Setter
@@ -41,6 +46,12 @@ public class User implements Serializable {
 	}
 	public void setPosition(Position pPosition) {
 		this.mPosition = pPosition;
+	}
+	public int getPoints() {
+		return this.mPoints;
+	}
+	public void setPoints(int pPoints) {
+		this.mPoints = pPoints;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces

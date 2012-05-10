@@ -10,11 +10,13 @@ import com.irmakcan.android.okey.gson.ChatResponse;
 import com.irmakcan.android.okey.gson.DrawTileResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.GameStartResponse;
+import com.irmakcan.android.okey.gson.JoinLoungeResponse;
 import com.irmakcan.android.okey.gson.ModelDeserializer;
 import com.irmakcan.android.okey.gson.NewUserResponse;
 import com.irmakcan.android.okey.gson.ThrowTileResponse;
 import com.irmakcan.android.okey.gson.UserLeaveResponse;
 import com.irmakcan.android.okey.gson.WonResponse;
+import com.irmakcan.android.okey.model.Player;
 import com.irmakcan.android.okey.model.Position;
 import com.irmakcan.android.okey.model.Tile;
 
@@ -123,7 +125,9 @@ public class OkeyWebSocketEventHandler implements WebSocketEventHandler {
 			gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer()).create();
 			final UserLeaveResponse userLeaveResponse = gson.fromJson(message.getText(), UserLeaveResponse.class);
 			this.mOnlineOkeyClientActivity.userLeaveMessage(userLeaveResponse);
-		} else if(status.equals("success")){
+		} else if(status.equals("join_lounge")){
+			JoinLoungeResponse joinLoungeResponse = gson.fromJson(message.getText(), JoinLoungeResponse.class);
+			Player.getPlayer().setPoints(joinLoungeResponse.getPoints());
 			this.mOnlineOkeyClientActivity.forceExitMessage();
 		}
 	}

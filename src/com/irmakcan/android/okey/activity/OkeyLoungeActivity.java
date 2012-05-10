@@ -28,6 +28,7 @@ import com.google.gson.GsonBuilder;
 import com.irmakcan.android.okey.R;
 import com.irmakcan.android.okey.gson.BaseResponse;
 import com.irmakcan.android.okey.gson.ErrorResponse;
+import com.irmakcan.android.okey.gson.JoinLoungeResponse;
 import com.irmakcan.android.okey.gson.JoinRoomResponse;
 import com.irmakcan.android.okey.gson.LoungeUpdateResponse;
 import com.irmakcan.android.okey.gson.ModelDeserializer;
@@ -100,6 +101,7 @@ public class OkeyLoungeActivity extends Activity{
 	@Override
 	protected void onResume() {
 		super.onResume();
+		// if WebSocketProvider.getWebSocket().isConnected() TODO
 	}
 	
 	@Override
@@ -228,6 +230,9 @@ public class OkeyLoungeActivity extends Activity{
 				i.putExtra("game_information", new GameInformation(mQueuedRoomName, joinRoomResponse.getUsers(), joinRoomResponse.getTimeoutInterval())); // TODO
 				Player.getPlayer().setPosition(joinRoomResponse.getPosition());
 				startActivity(i);
+			}else if(status.equals("join_lounge")){
+				JoinLoungeResponse joinLoungeResponse = gson.fromJson(message.getText(), JoinLoungeResponse.class);
+				Player.getPlayer().setPoints(joinLoungeResponse.getPoints());
 			}else{
 				// TODO
 			}
