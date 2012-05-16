@@ -404,14 +404,22 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				indicatorSprite.setPosition(CAMERA_WIDTH/2 - (indicatorSprite.getWidth() + Constants.TILE_PADDING_X), 
 						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2);
 				mScene.attachChild(indicatorSprite);
-				// CenterTiles TODO
+				// CenterTiles
 				BlankTileSprite blankTileSprite = new BlankTileSprite(
+						CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
+						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
+						mTileTextureRegion, getVertexBufferObjectManager(), mTableManager);
+				mScene.attachChild(blankTileSprite); // Background tile
+				
+				blankTileSprite = new BlankTileSprite(
 						CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
 						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
 						mTileTextureRegion, getVertexBufferObjectManager(), mTableManager);
 				mScene.registerTouchArea(blankTileSprite);
 				blankTileSprite.enableTouch();
 				mScene.attachChild(blankTileSprite);
+				
+				
 				
 				// Center Tile Count
 				mTileCountText.setPosition(blankTileSprite.getX(), blankTileSprite.getY()); // TODO
