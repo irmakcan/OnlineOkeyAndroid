@@ -35,7 +35,8 @@ public class TileSprite extends Sprite {
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public TileSprite(float pX, float pY, ITextureRegion pTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager, 
+	public TileSprite(float pX, float pY, ITextureRegion pTextureRegion, ITextureRegion pFakeJokerTextureRegion,
+			VertexBufferObjectManager pVertexBufferObjectManager, 
 			Tile pTile, Font pFont, TableManager pTableManager) {
 		super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
 		this.mTile = pTile;
@@ -44,10 +45,16 @@ public class TileSprite extends Sprite {
 		this.mOldX = pX;
 		this.mOldY = pY;
 		
-		final Text centerText = new Text(0, 0, pFont, Integer.toString(pTile.getValue()), MAXIMUM_CHARACTERS, new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
-		centerText.setColor(pTile.getTileColor().getColor());
-		centerText.setPosition((pTextureRegion.getWidth()/2)-(centerText.getWidth()/2), 4); // TODO
-		this.attachChild(centerText);
+		if(pTile.getValue() == 0){
+			Sprite jokerSprite = new Sprite(0, 0, pFakeJokerTextureRegion, pVertexBufferObjectManager);
+			jokerSprite.setPosition((pTextureRegion.getWidth()/2)-(jokerSprite.getWidth()/2), 0);
+			this.attachChild(jokerSprite);
+		}else{
+			final Text centerText = new Text(0, 0, pFont, Integer.toString(pTile.getValue()), MAXIMUM_CHARACTERS, new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
+			centerText.setColor(pTile.getTileColor().getColor());
+			centerText.setPosition((pTextureRegion.getWidth()/2)-(centerText.getWidth()/2), 4); // TODO
+			this.attachChild(centerText);
+		}
 
 	}
 	// ===========================================================

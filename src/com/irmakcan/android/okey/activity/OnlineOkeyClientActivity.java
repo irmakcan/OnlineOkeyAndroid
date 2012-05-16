@@ -85,6 +85,9 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private static final int TILE_WIDTH = 56;
 	private static final int TILE_HEIGHT = 84;
 	
+	private static final int FAKE_JOKER_WIDTH = 52;
+	private static final int FAKE_JOKER_HEIGHT = 52;
+	
 	private static final int USER_AREA_WIDTH = Constants.USER_AREA_WIDTH;
 	private static final int USER_AREA_HEIGHT = Constants.USER_AREA_HEIGHT;
 
@@ -114,6 +117,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private ITextureRegion mTileTextureRegion;
 	private ITextureRegion mBoardWoodTextureRegion;
+	private ITextureRegion mFakeJokerTextureRegion;
 
 	private Font mTileFont;
 	private Font mUserAreaFont;
@@ -183,6 +187,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		// Board
 		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 96, 144, TextureOptions.BILINEAR);
 		this.mBoardWoodTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "board_wood.png", 0, 0);
+		bitmapTextureAtlas.load();
+		
+		// Fake joker
+		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), FAKE_JOKER_WIDTH, FAKE_JOKER_HEIGHT, TextureOptions.BILINEAR);
+		this.mFakeJokerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "fake_joker.png", 0, 0);
 		bitmapTextureAtlas.load();
 
 		// Load Fonts
@@ -400,7 +409,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	}
 	
 	private TileSprite createNewTileSprite(final Tile pTile) {
-		return new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager);
+		return new TileSprite(0, 0, this.mTileTextureRegion, this.mFakeJokerTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager);
 	}
 	
 	public void toastMessage(final String pMessage){
@@ -585,7 +594,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 							}
 						}
 						for(Tile tile : group){
-							TileSprite ts = new TileSprite(0, 0, mTileTextureRegion, getVertexBufferObjectManager(), tile, mTileFont, null);
+							TileSprite ts = new TileSprite(0, 0, mTileTextureRegion, OnlineOkeyClientActivity.this.mFakeJokerTextureRegion, getVertexBufferObjectManager(), tile, mTileFont, null);
 							ts.disableTouch();
 							popupScene.attachChild(ts);
 							board.addChild(ts, location);
