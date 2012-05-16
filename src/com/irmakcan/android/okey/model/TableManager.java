@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.andengine.audio.sound.Sound;
 import org.andengine.entity.primitive.Rectangle;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,18 +43,20 @@ public class TableManager implements IPendingOperation {
 	private final Position mPosition;
 	private final Rectangle mCenterArea;
 	private final int mTimeoutInterval;
+	private Sound mTurnSound;
 
 	private IPendingOperation mIPendingOperation;
 	private State mState;
 	private Position mTurn;
 	private OnlineOkeyClientActivity mActivity;
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 	public TableManager(final Position pPosition, final Board pBoard, 
 			final Map<TableCorner, CornerTileStackRectangle> pCorners, final Rectangle pCenterArea,
 			final Map<Position, UserInfoArea> pUserAreas, final TileCountText pTileCountText, final int pTimeoutInterval,
-			final OnlineOkeyClientActivity pActivity) {
+			final Sound pTurnSound, final OnlineOkeyClientActivity pActivity) {
 		this.mBoard = pBoard;
 		this.mCorners = pCorners;
 		this.mPosition = pPosition;
@@ -61,6 +64,7 @@ public class TableManager implements IPendingOperation {
 		this.mUserAreas = pUserAreas;
 		this.mTileCountText = pTileCountText;
 		this.mTimeoutInterval = pTimeoutInterval;
+		this.mTurnSound = pTurnSound;
 		this.mState = null;
 		this.mActivity = pActivity;
 		this.mUsers = new HashMap<Position, User>();
@@ -100,8 +104,12 @@ public class TableManager implements IPendingOperation {
 		this.mTurn = pTurn;
 		// Set state
 		if(this.mTurn == getUserPosition()){
+			if(this.mState == null){
+				this.mTurnSound.play();
+			}
 			if(this.mState == State.WAITING){
 				this.mState = State.DRAW;
+				this.mTurnSound.play();
 			}else{
 				this.mState = State.THROW;
 			}

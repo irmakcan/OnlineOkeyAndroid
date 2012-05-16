@@ -1,8 +1,11 @@
 package com.irmakcan.android.okey.activity;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -22,6 +25,7 @@ import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
+import org.andengine.util.debug.Debug;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
@@ -113,6 +117,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private Font mTileFont;
 	private Font mUserAreaFont;
+	
+	private Sound mTurnSound;
 
 	private Board mBoard;
 	private Map<TableCorner, CornerTileStackRectangle> mCornerStacks;
@@ -159,7 +165,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
+		final EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
+		engineOptions.getAudioOptions().setNeedsSound(true);
+		
+		return engineOptions;
 	}
 
 	@Override
@@ -185,6 +194,14 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		
 		this.mRemainingTimeFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 16, true, Color.WHITE);
 		this.mRemainingTimeFont.load();
+		
+		// Load sound files
+		SoundFactory.setAssetBasePath("mfx/");
+		try {
+			this.mTurnSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "turn.ogg");
+		} catch (final IOException e) {
+			Debug.e(e);
+		}
 		
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
@@ -254,7 +271,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		super.onGameCreated();
 
 		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, 
-				this.mCenterArea, this.mUserAreas, this.mTileCountText, this.mGameInformation.getTimeoutInterval(), this);
+				this.mCenterArea, this.mUserAreas, this.mTileCountText, this.mGameInformation.getTimeoutInterval(), this.mTurnSound, this);
 		this.mTableManager.setUserAt(Player.getPlayer().getPosition(), Player.getPlayer());
 		for(User user : this.mGameInformation.getUserList()){
 			this.mTableManager.setUserAt(user.getPosition(), user);
