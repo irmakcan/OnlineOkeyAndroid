@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import android.util.Log;
 
+import com.irmakcan.android.okey.activity.OnlineOkeyClientActivity;
 import com.irmakcan.android.okey.gui.Board;
 import com.irmakcan.android.okey.gui.BoardFragment;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
@@ -43,14 +44,16 @@ public class TableManager implements IPendingOperation {
 	private final int mTimeoutInterval;
 
 	private IPendingOperation mIPendingOperation;
-
+	private State mState;
 	private Position mTurn;
+	private OnlineOkeyClientActivity mActivity;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
 	public TableManager(final Position pPosition, final Board pBoard, 
 			final Map<TableCorner, CornerTileStackRectangle> pCorners, final Rectangle pCenterArea,
-			final Map<Position, UserInfoArea> pUserAreas, final TileCountText pTileCountText, final int pTimeoutInterval) {
+			final Map<Position, UserInfoArea> pUserAreas, final TileCountText pTileCountText, final int pTimeoutInterval,
+			final OnlineOkeyClientActivity pActivity) {
 		this.mBoard = pBoard;
 		this.mCorners = pCorners;
 		this.mPosition = pPosition;
@@ -58,6 +61,8 @@ public class TableManager implements IPendingOperation {
 		this.mUserAreas = pUserAreas;
 		this.mTileCountText = pTileCountText;
 		this.mTimeoutInterval = pTimeoutInterval;
+		this.mState = null;
+		this.mActivity = pActivity;
 		this.mUsers = new HashMap<Position, User>();
 	}
 	// ===========================================================
@@ -93,6 +98,16 @@ public class TableManager implements IPendingOperation {
 		this.mUserAreas.get(pTurn).setEnabled(true);
 		this.mUserAreas.get(pTurn).startTimer(this.mTimeoutInterval);
 		this.mTurn = pTurn;
+		// Set state
+		if(this.mTurn == getUserPosition()){
+			if(this.mState == State.WAITING){
+				this.mState = State.DRAW;
+			}else{
+				this.mState = State.THROW;
+			}
+		}else{
+			this.mState = State.WAITING;
+		}
 	}
 	public Rectangle getCenterArea(){
 		return this.mCenterArea;
@@ -169,8 +184,10 @@ public class TableManager implements IPendingOperation {
 	}
 
 	public void drawCenterTile(IPendingOperation pIPendingOperation) {
-		if(!this.setPendingOperation(pIPendingOperation)){
+		if(this.mState != State.DRAW || !this.setPendingOperation(pIPendingOperation)){
 			pIPendingOperation.cancelPendingOperation();
+			
+			toastMessage(true);
 			return;
 		}
 		if(this.mTurn == this.mPosition){
@@ -186,8 +203,9 @@ public class TableManager implements IPendingOperation {
 		}
 	}
 	public void drawCornerTile(IPendingOperation pIPendingOperation) {
-		if(!this.setPendingOperation(pIPendingOperation)){
+		if(this.mState != State.DRAW || !this.setPendingOperation(pIPendingOperation)){
 			pIPendingOperation.cancelPendingOperation();
+			toastMessage(true);
 			return;
 		}
 		if(this.mTurn == this.mPosition){
@@ -203,8 +221,9 @@ public class TableManager implements IPendingOperation {
 		}
 	}
 	public void throwTile(final IPendingOperation pIPendingOperation, final Tile pTile) {
-		if(!this.setPendingOperation(pIPendingOperation)){
+		if(this.mState != State.THROW || !this.setPendingOperation(pIPendingOperation)){
 			pIPendingOperation.cancelPendingOperation();
+			toastMessage(false);
 			return;
 		}
 		Log.v(LOG_TAG, "Turn: " + this.getTurn().toString() + " Pos: " + this.getUserPosition());
@@ -221,8 +240,9 @@ public class TableManager implements IPendingOperation {
 		}
 	}
 	public void throwTileToFinish(final IPendingOperation pIPendingOperation, final Tile pTile) {
-		if(!this.setPendingOperation(pIPendingOperation)){
+		if(this.mState != State.THROW || !this.setPendingOperation(pIPendingOperation)){
 			pIPendingOperation.cancelPendingOperation();
+			toastMessage(false);
 			return;
 		}
 		Log.v(LOG_TAG, "Turn: " + this.getTurn().toString() + " Pos: " + this.getUserPosition());
@@ -262,8 +282,62 @@ public class TableManager implements IPendingOperation {
 			pIPendingOperation.cancelPendingOperation();
 		}
 	}
+	
+	private void toastMessage(boolean isDrawAction){
+		String message = null;
+		if(isDrawAction){
+			if(this.mState == State.DRAW){
+				message = "Please wait for previous action";
+			}else if(this.mState == State.THROW){
+				message = "Invalid move. Please throw a tile";
+			}else{
+				message = "Please wait for your turn";
+			}
+		}else{
+			if(this.mState == State.DRAW){
+				message = "Invalid move. Please draw a tile";
+			}else if(this.mState == State.THROW){
+				message = "Please wait for previous action";
+			}else{
+				message = "Please wait for your turn";
+			}
+		}
+		this.mActivity.toastMessage(message);
+	}
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
+	private enum State{
+		// ===========================================================
+		// Elements
+		// ===========================================================
+		WAITING, DRAW, THROW;
+		// ===========================================================
+		// Constants
+		// ===========================================================
 
+		// ===========================================================
+		// Fields
+		// ===========================================================
+
+		// ===========================================================
+		// Constructors
+		// ===========================================================
+		
+		// ===========================================================
+		// Getter & Setter
+		// ===========================================================
+
+		// ===========================================================
+		// Methods for/from SuperClass/Interfaces
+		// ===========================================================
+
+		// ===========================================================
+		// Methods
+		// ===========================================================
+
+		// ===========================================================
+		// Inner and Anonymous Classes
+		// ===========================================================
+	}
 }

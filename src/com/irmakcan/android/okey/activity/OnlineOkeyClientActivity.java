@@ -254,7 +254,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		super.onGameCreated();
 
 		this.mTableManager = new TableManager(Player.getPlayer().getPosition(), mBoard, this.mCornerStacks, 
-				this.mCenterArea, this.mUserAreas, this.mTileCountText, this.mGameInformation.getTimeoutInterval());
+				this.mCenterArea, this.mUserAreas, this.mTileCountText, this.mGameInformation.getTimeoutInterval(), this);
 		this.mTableManager.setUserAt(Player.getPlayer().getPosition(), Player.getPlayer());
 		for(User user : this.mGameInformation.getUserList()){
 			this.mTableManager.setUserAt(user.getPosition(), user);
@@ -385,8 +385,17 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private TileSprite createNewTileSprite(final Tile pTile) {
 		return new TileSprite(0, 0, this.mTileTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager);
 	}
+	
+	public void toastMessage(final String pMessage){
+		this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(OnlineOkeyClientActivity.this.getApplicationContext(), pMessage, Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
 
-	// Actions
+	/* Actions */
 	public void errorMessage(final ErrorResponse pErrorResponse){
 		this.runOnUiThread(new Runnable() {
 			@Override
@@ -419,10 +428,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				blankTileSprite.enableTouch();
 				mScene.attachChild(blankTileSprite);
 				
-				
-				
 				// Center Tile Count
-				mTileCountText.setPosition(blankTileSprite.getX(), blankTileSprite.getY()); // TODO
+				mTileCountText.setPosition(blankTileSprite.getX(), blankTileSprite.getY());
 				mScene.attachChild(mTileCountText);
 				
 				for(Tile tile : pGameStartResponse.getUserHand()){
@@ -599,7 +606,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	}
 
 	public void newUserMessage(final NewUserResponse pNewUserResponse) {
-		final User user = new User(pNewUserResponse.getUserName(), pNewUserResponse.getPosition());
+		final User user = new User(pNewUserResponse.getUserName(), pNewUserResponse.getPosition(), pNewUserResponse.getPoints());
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
