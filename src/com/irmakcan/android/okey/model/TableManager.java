@@ -135,6 +135,10 @@ public class TableManager implements IPendingOperation {
 			this.mIPendingOperation = null;
 		}
 	}
+	@Override
+	public Tile getPendingTile() {
+		return this.mIPendingOperation.getPendingTile();
+	}
 	// ===========================================================
 	// Methods
 	// ===========================================================

@@ -444,15 +444,27 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 							mScene.attachChild(tileSprite);
 							mTableManager.forceDrawCenter(tileSprite);
 						}
-					}else{
-						if(mTableManager.getCenterCount() == pDrawTileResponse.getCenterCount()){
-							mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
+					}else if(mTableManager.getPendingTile() == null){ // Drawn from center
+						if(mTableManager.getCenterCount() == pDrawTileResponse.getCenterCount()){ // Server forced draw from left
+							mTableManager.cancelPendingOperation();
+							mTableManager.forceDrawLeft();
 						}else{
 							TileSprite tileSprite = createNewTileSprite(pDrawTileResponse.getTile());
 							mScene.registerTouchArea(tileSprite);
 							tileSprite.enableTouch();
 							mScene.attachChild(tileSprite);
 							mTableManager.pendingOperationSuccess(tileSprite);
+						}
+					}else{ // Drawn from left
+						if(mTableManager.getCenterCount() != pDrawTileResponse.getCenterCount()){ // Server forced draw from center
+							mTableManager.cancelPendingOperation();
+							TileSprite tileSprite = createNewTileSprite(pDrawTileResponse.getTile());
+							mScene.registerTouchArea(tileSprite);
+							tileSprite.enableTouch();
+							mScene.attachChild(tileSprite);
+							mTableManager.forceDrawCenter(tileSprite);
+						}else{
+							mTableManager.pendingOperationSuccess(mTableManager.getPreviousCornerStack());
 						}
 					}
 				} else {
@@ -478,15 +490,19 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				Tile tile = pThrowTileResponse.getTile();
 				if(TableCorner.nextCornerFromPosition(mTableManager.getUserPosition()) == prevCorner){ // Tile thrown by this user
 					if(mTableManager.getPendingOperation() == null){ // Force thrown
-						mTableManager.forceThrow(pThrowTileResponse.getTile());
+						mTableManager.forceThrow(tile);
+					}else if(!mTableManager.getPendingTile().equals(tile)){ // Force thrown
+						mTableManager.cancelPendingOperation(); // Move has already been made but server forced another tile
+						mTableManager.forceThrow(tile);
 					}else{
 						mTableManager.setTurn(pThrowTileResponse.getTurn());
 						mTableManager.pendingOperationSuccess(mTableManager.getCornerStack(prevCorner));
 					}
-				} else {
-					TileSprite tileSprite = createNewTileSprite(pThrowTileResponse.getTile());
+				} else { // Another user threw
+					TileSprite tileSprite = createNewTileSprite(tile);
 					if(pThrowTileResponse.getTurn() == mTableManager.getUserPosition()){
 						mScene.registerTouchArea(tileSprite);
 						tileSprite.enableTouch();

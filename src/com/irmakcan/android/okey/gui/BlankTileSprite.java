@@ -6,6 +6,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import com.irmakcan.android.okey.model.TableManager;
+import com.irmakcan.android.okey.model.Tile;
 
 public class BlankTileSprite extends Sprite implements IPendingOperation{
 	// ===========================================================
@@ -85,6 +86,10 @@ public class BlankTileSprite extends Sprite implements IPendingOperation{
 		this.setPosition(mX, mY);
 		TileSprite ts = (TileSprite)o;
 		mTableManager.moveTile(ts.getMovePendingOperation(), ts, mCenterX, mCenterY);
+	}
+	@Override
+	public Tile getPendingTile() {
+		return null;
 	}
 	// ===========================================================
 	// Methods

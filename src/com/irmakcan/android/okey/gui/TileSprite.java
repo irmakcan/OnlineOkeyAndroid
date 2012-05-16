@@ -99,6 +99,10 @@ public class TileSprite extends Sprite {
 								public void cancelPendingOperation() {
 									TileSprite.this.setPosition(mOldX, mOldY);
 								}
+								@Override
+								public Tile getPendingTile() {
+									return TileSprite.this.getTile();
+								}
 							};
 							mTableManager.drawCornerTile(drawPendingOperation);
 						}else{ // normal move
@@ -160,6 +164,10 @@ public class TileSprite extends Sprite {
 		public void cancelPendingOperation() {
 			TileSprite.this.setPosition(mOldX, mOldY);
 		}
+		@Override
+		public Tile getPendingTile() {
+			return TileSprite.this.getTile();
+		}
 	};
 	private IPendingOperation mThrowPendingOperation = new IPendingOperation() {
 		@Override
@@ -173,6 +181,10 @@ public class TileSprite extends Sprite {
 		public void cancelPendingOperation() {
 			TileSprite.this.setPosition(mOldX, mOldY);
 		}
+		@Override
+		public Tile getPendingTile() {
+			return TileSprite.this.getTile();
+		}
 	};
 	private IPendingOperation mThrowToFinishPendingOperation = new IPendingOperation() {
 		@Override
@@ -185,6 +197,10 @@ public class TileSprite extends Sprite {
 		@Override
 		public void cancelPendingOperation() {
 			TileSprite.this.setPosition(mOldX, mOldY);
+		}
+		@Override
+		public Tile getPendingTile() {
+			return TileSprite.this.getTile();
 		}
 	};
 }
