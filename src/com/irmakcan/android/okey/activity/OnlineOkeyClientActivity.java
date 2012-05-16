@@ -495,6 +495,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 						});
 					} //else Drawn from center
 				}
+				// Lock left corner tile
+				CornerTileStackRectangle tileStack = mTableManager.getCornerStack(TableCorner.previousCornerFromPosition(pDrawTileResponse.getTurn()));
+				if(tileStack.lastElement() != null){
+					tileStack.lastElement().disableTouch();
+				}
 				mTableManager.setCenterCount(pDrawTileResponse.getCenterCount());
 				mTableManager.setTurn(pDrawTileResponse.getTurn());
 			}
