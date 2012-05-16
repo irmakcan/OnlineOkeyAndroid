@@ -155,7 +155,7 @@ public class LoginClientActivity extends Activity {
 			ws.setEventHandler(mWebSocketEventHandler);
 			ws.connect();
 			JSONObject json = new JSONObject();
-			json.put("action", "authenticate").put("version", "0.0.1")
+			json.put("action", "authenticate").put("version", "0.0.0")
 					.put("username", this.mCurrentUserName).put("access_token", pAccessToken);
 			ws.send(json.toString()); // TODO authentication
 			

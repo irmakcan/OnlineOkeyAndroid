@@ -1,6 +1,7 @@
 package com.irmakcan.android.okey.activity;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,6 +57,7 @@ import com.irmakcan.android.okey.gson.UserLeaveResponse;
 import com.irmakcan.android.okey.gson.WonResponse;
 import com.irmakcan.android.okey.gui.BlankTileSprite;
 import com.irmakcan.android.okey.gui.Board;
+import com.irmakcan.android.okey.gui.ChatWindow;
 import com.irmakcan.android.okey.gui.Constants;
 import com.irmakcan.android.okey.gui.CornerTileStackRectangle;
 import com.irmakcan.android.okey.gui.TileCountText;
@@ -84,10 +86,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private static final int TILE_WIDTH = 56;
 	private static final int TILE_HEIGHT = 84;
-	
+
 	private static final int FAKE_JOKER_WIDTH = 52;
 	private static final int FAKE_JOKER_HEIGHT = 52;
-	
+
 	private static final int USER_AREA_WIDTH = Constants.USER_AREA_WIDTH;
 	private static final int USER_AREA_HEIGHT = Constants.USER_AREA_HEIGHT;
 
@@ -108,9 +110,6 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	// ===========================================================
 	// Fields
 	// ===========================================================
-
-	
-
 	private GameInformation mGameInformation;
 
 	private TableManager mTableManager;
@@ -121,7 +120,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private Font mTileFont;
 	private Font mUserAreaFont;
-	
+
 	private Sound mTurnSound;
 
 	private Board mBoard;
@@ -130,6 +129,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private Rectangle mCenterArea;
 	private TileCountText mTileCountText;
 
+	private ChatWindow mChatWindow;
+
 	private Camera mCamera; 
 	private Scene mScene;
 
@@ -137,6 +138,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	private boolean mDoubleBackToExitPressedOnce;
 	private volatile boolean mIsFinishing;
+
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -165,13 +168,13 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		super.onResume();
 		this.mDoubleBackToExitPressedOnce = false;
 	}
-	
+
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		this.mCamera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		final EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), mCamera);
 		engineOptions.getAudioOptions().setNeedsSound(true);
-		
+
 		return engineOptions;
 	}
 
@@ -188,7 +191,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 96, 144, TextureOptions.BILINEAR);
 		this.mBoardWoodTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "board_wood.png", 0, 0);
 		bitmapTextureAtlas.load();
-		
+
 		// Fake joker
 		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), FAKE_JOKER_WIDTH, FAKE_JOKER_HEIGHT, TextureOptions.BILINEAR);
 		this.mFakeJokerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "fake_joker.png", 0, 0);
@@ -200,10 +203,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 		this.mUserAreaFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 20, true, Color.WHITE);
 		this.mUserAreaFont.load();
-		
+
 		this.mRemainingTimeFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 16, true, Color.WHITE);
 		this.mRemainingTimeFont.load();
-		
+
 		// Load sound files
 		SoundFactory.setAssetBasePath("mfx/");
 		try {
@@ -211,7 +214,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		} catch (final IOException e) {
 			Debug.e(e);
 		}
-		
+
 		pOnCreateResourcesCallback.onCreateResourcesFinished();
 	}
 
@@ -221,8 +224,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 		mScene = new Scene();
 		mScene.setBackground(new Background(0.165f, 0.447f, 0.141f));
-		
-		
+
+
 		// Create board
 		this.mBoard = new Board(0, 0, mBoardWoodTextureRegion, this.getVertexBufferObjectManager());
 		mBoard.setPosition((CAMERA_WIDTH/2)-(mBoard.getWidth()/2), CAMERA_HEIGHT-mBoard.getHeight());
@@ -261,7 +264,14 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		// Create Center Tile Count
 		this.mTileCountText = new TileCountText(CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
 				(CAMERA_HEIGHT - mBoard.getHeight())/2 - Constants.TILE_HEIGHT/2, mTileFont, getVertexBufferObjectManager()); 
-		
+
+
+		// Create Chat Window
+		this.mChatWindow = new ChatWindow(0, 0, CAMERA_WIDTH*3/4, CAMERA_HEIGHT*3/5, mUserAreaFont, getVertexBufferObjectManager());
+		this.mChatWindow.setColor(0.4f, 0.4f, 0.4f, 0.6f);
+		this.mChatWindow.setVisible(false);
+		this.mChatWindow.setZIndex(50);
+		this.mScene.attachChild(this.mChatWindow);
 
 		mScene.setTouchAreaBindingOnActionDownEnabled(true);
 		mScene.setTouchAreaBindingOnActionMoveEnabled(true);
@@ -301,64 +311,68 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		
 	}
-	
+
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if(this.mIsFinishing){
 			menu.removeItem(R.id.game_menu_chat);
+			menu.removeItem(R.id.game_menu_messages);
 			menu.removeItem(R.id.game_menu_force_start);
 			return true;
 		}
 		if(this.mTableManager.getTurn() != null){
-			menu.getItem(1).setEnabled(false);
+			menu.getItem(2).setEnabled(false); // item should always be force_start
 		}
 		return true;
 	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.game_menu, menu);
-	    return true;
+		inflater.inflate(R.menu.game_menu, menu);
+		return true;
 	}
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    // Handle item selection
-	    switch (item.getItemId()) {
-	        case R.id.game_menu_chat:
-	            showChatWindow();
-	            return true;
-	        case R.id.game_menu_force_start:
-	            sendForceStartMessage();
-	            return true;
-	        default:
-	            return super.onOptionsItemSelected(item);
-	    }
+		// Handle item selection
+		switch (item.getItemId()) {
+		case R.id.game_menu_chat:
+			showChatWindow();
+			return true;
+		case R.id.game_menu_messages:
+			toggleMessagesWindow();
+			return true;
+		case R.id.game_menu_force_start:
+			sendForceStartMessage();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
+
 	@Override
 	public void onBackPressed() {
 		if(this.mDoubleBackToExitPressedOnce) {
-	        super.onBackPressed();
-	        if(!this.mIsFinishing){ // TODO test
-		        // Send user leave message
-		        try {
+			super.onBackPressed();
+			if(!this.mIsFinishing){ // TODO test
+				// Send user leave message
+				try {
 					JSONObject json = new JSONObject().put("action", "leave_room");
 					WebSocketProvider.getWebSocket().send(json.toString());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-	        }
-	        return;
-	    }
-	    this.mDoubleBackToExitPressedOnce = true;
-	    Toast.makeText(this, "Press again to exit room " + this.mGameInformation.getTableName(), Toast.LENGTH_SHORT).show();
+			}
+			return;
+		}
+		this.mDoubleBackToExitPressedOnce = true;
+		Toast.makeText(this, "Press again to exit room " + this.mGameInformation.getTableName(), Toast.LENGTH_SHORT).show();
 	}
 	// ===========================================================
 	// Methods
 	// ===========================================================
 
-	
+
 
 	private void showChatWindow(){
 		AlertDialog.Builder builder;
@@ -389,7 +403,15 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		alertDialog = builder.create();
 		alertDialog.show();
 	}
-	
+
+	private void toggleMessagesWindow() {
+		if(this.mChatWindow.isVisible()){
+			this.mChatWindow.setVisible(false);
+		}else{
+			this.mChatWindow.setVisible(true);
+		}
+	}
+
 	private void sendChatMessage(String string) {
 		try {
 			JSONObject json = new JSONObject().put("action", "chat").put("message", string);
@@ -398,7 +420,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void sendForceStartMessage() {
 		try {
 			JSONObject json = new JSONObject().put("action", "force_start");
@@ -407,11 +429,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private TileSprite createNewTileSprite(final Tile pTile) {
 		return new TileSprite(0, 0, this.mTileTextureRegion, this.mFakeJokerTextureRegion, this.getVertexBufferObjectManager(), pTile , this.mTileFont, this.mTableManager);
 	}
-	
+
 	public void toastMessage(final String pMessage){
 		this.runOnUiThread(new Runnable() {
 			@Override
@@ -445,7 +467,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
 						mTileTextureRegion, getVertexBufferObjectManager(), mTableManager);
 				mScene.attachChild(blankTileSprite); // Background tile
-				
+
 				blankTileSprite = new BlankTileSprite(
 						CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
 						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
@@ -453,11 +475,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				mScene.registerTouchArea(blankTileSprite);
 				blankTileSprite.enableTouch();
 				mScene.attachChild(blankTileSprite);
-				
+
 				// Center Tile Count
 				mTileCountText.setPosition(blankTileSprite.getX(), blankTileSprite.getY());
 				mScene.attachChild(mTileCountText);
-				
+
 				for(Tile tile : pGameStartResponse.getUserHand()){
 					TileSprite ts = createNewTileSprite(tile);
 					mScene.registerTouchArea(ts);
@@ -581,7 +603,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					translucentBackground.setColor(0, 0, 0);
 					translucentBackground.setAlpha(0.7f);
 					popupScene.attachChild(translucentBackground);
-					
+
 					// Create new board
 					Board board = new Board(0, 0, mBoardWoodTextureRegion, getVertexBufferObjectManager());
 					board.setPosition((CAMERA_WIDTH/2)-(board.getWidth()/2), (CAMERA_HEIGHT/2)-(board.getHeight()/2));
@@ -628,10 +650,21 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(OnlineOkeyClientActivity.this, 
-						mTableManager.getUserAt(pChatResponse.getPosition()).getUserName() + ": " + pChatResponse.getMessage(), 
-						Toast.LENGTH_LONG)
-						.show();
+				if(!mChatWindow.isOpen()){
+					Toast.makeText(OnlineOkeyClientActivity.this, 
+							mTableManager.getUserAt(pChatResponse.getPosition()).getUserName() + ": " + pChatResponse.getMessage(), 
+							Toast.LENGTH_LONG)
+							.show();
+				}
+				Calendar calendar = Calendar.getInstance();
+		        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+		        int minute = calendar.get(Calendar.MINUTE);
+		        int second = calendar.get(Calendar.SECOND);
+		        
+		        String date = String.format("%02d:%02d:%02d", hour, minute, second);
+
+				mChatWindow.addMessage(date, mTableManager.getUserAt(pChatResponse.getPosition()).getUserName() + ": " + pChatResponse.getMessage());
+
 			}
 		});
 	}
