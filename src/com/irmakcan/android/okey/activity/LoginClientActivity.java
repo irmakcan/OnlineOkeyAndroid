@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.google.gson.Gson;
 import com.irmakcan.android.okey.R;
 import com.irmakcan.android.okey.gson.BaseResponse;
+import com.irmakcan.android.okey.gson.ErrorResponse;
 import com.irmakcan.android.okey.gson.JoinLoungeResponse;
 import com.irmakcan.android.okey.http.task.LoginAsyncTask;
 import com.irmakcan.android.okey.model.Player;
@@ -154,7 +155,7 @@ public class LoginClientActivity extends Activity {
 			ws.setEventHandler(mWebSocketEventHandler);
 			ws.connect();
 			JSONObject json = new JSONObject();
-			json.put("action", "authenticate").put("version", "0.0.0")
+			json.put("action", "authenticate").put("version", "0.0.1")
 					.put("username", this.mCurrentUserName).put("access_token", pAccessToken);
 			ws.send(json.toString()); // TODO authentication
 			
@@ -210,8 +211,29 @@ public class LoginClientActivity extends Activity {
 				Player.getPlayer().setPoints(joinLoungeResponse.getPoints());
 				Intent i = new Intent(LoginClientActivity.this, OkeyLoungeActivity.class);
 				startActivity(i);
+			}else if(baseResponse.getStatus().equals("error")){
+				final ErrorResponse errorResponse  = gson.fromJson(message.getText(), ErrorResponse.class);
+				LoginClientActivity.this.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						List<String> messageList = new ArrayList<String>();
+						String message = errorResponse.getMessage();
+						if(message.equals("Incompatible version")){
+							message = message.concat(", please update the application");
+						}
+						messageList.add(message);
+						flash(messageList);
+					}
+				});
 			}else{
-				// TODO
+				LoginClientActivity.this.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						List<String> messageList = new ArrayList<String>();
+						messageList.add("Unknown error occurred.");
+						flash(messageList);
+					}
+				});
 			}
 		}
 		@Override
