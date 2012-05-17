@@ -357,7 +357,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			toggleMessagesWindow();
 		}else if(this.mDoubleBackToExitPressedOnce) {
 			super.onBackPressed();
-			if(!this.mIsFinishing){ // TODO test
+			if(!this.mIsFinishing){
 				// Send user leave message
 				try {
 					JSONObject json = new JSONObject().put("action", "leave_room");
@@ -374,9 +374,6 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	// ===========================================================
 	// Methods
 	// ===========================================================
-
-
-
 	private void showChatWindow(){
 		AlertDialog.Builder builder;
 		AlertDialog alertDialog;

@@ -2,16 +2,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/dashboard_resource_bar"
     android:layout_width="match_parent"
-    android:layout_height="20dp"
+    android:layout_height="40dp"
     android:background="#323331"
     android:gravity="center_vertical"
     android:orientation="horizontal"
     android:paddingLeft="5dip" >
 
-    <TextView
+    <ImageView
         android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/brand_bar_app_name"
+        android:padding="2dp"
+        android:scaleType="fitStart"
+        android:src="@drawable/jester_tns" />
+
+    <TextView
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textColor="#FFFFFFFF" />
+        android:layout_marginLeft="4dp"
+        android:layout_weight="1"
+        android:typeface="serif"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:text="@string/brand_bar_app_name"
+        android:textColor="#FFFFFFFF"
+        android:textSize="20dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:contentDescription="@string/brand_bar_app_name"
+        android:padding="2dp"
+        android:scaleType="fitEnd"
+        android:src="@drawable/jester_tns" />
 
 </LinearLayout>
