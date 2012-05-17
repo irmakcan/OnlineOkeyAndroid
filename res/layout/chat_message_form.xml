@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:inputType="text"
+        android:hint="@string/chat_message_form_hint"
+        android:inputType="textNoSuggestions"
         android:lines="1"
         android:scrollHorizontally="true" />
 

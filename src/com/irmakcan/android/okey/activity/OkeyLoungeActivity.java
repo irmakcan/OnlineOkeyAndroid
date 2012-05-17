@@ -10,15 +10,21 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnShowListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
@@ -235,7 +241,7 @@ public class OkeyLoungeActivity extends Activity{
 		@Override
 		public void onClick(View v) {
 			AlertDialog.Builder builder;
-			AlertDialog alertDialog;
+			final AlertDialog alertDialog;
 
 			Context context = OkeyLoungeActivity.this;
 			LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -260,7 +266,35 @@ public class OkeyLoungeActivity extends Activity{
 			});
 			builder.setView(layout);
 			alertDialog = builder.create();
+			alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+			alertDialog.setOnShowListener(new OnShowListener() { // Force show soft keyboard 
+				@Override
+				public void onShow(DialogInterface dialog) {
+					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+				}
+			});
 			alertDialog.show();
+			
+			roomNameEditText.setOnEditorActionListener(new OnEditorActionListener() {
+				@Override
+				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+					if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
+						// Dissmiss keyboard
+						InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+						imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						// Simulate Send button click
+						alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+						return true;
+					}
+					return false;
+				}
+			});
 		}
 	};
 	private OnItemClickListener mJoinRoomAction = new OnItemClickListener() {

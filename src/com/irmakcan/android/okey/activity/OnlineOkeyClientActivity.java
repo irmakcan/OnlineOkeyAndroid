@@ -32,18 +32,26 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnShowListener;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.irmakcan.android.okey.R;
@@ -268,7 +276,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 		// Create Chat Window
 		this.mChatWindow = new ChatWindow(0, 0, CAMERA_WIDTH*3/4, CAMERA_HEIGHT*3/5, mUserAreaFont, getVertexBufferObjectManager());
-		this.mChatWindow.setColor(0.4f, 0.4f, 0.4f, 0.6f);
+		this.mChatWindow.setColor(0.518f, 0.514f, 0.569f, 0.6f);
 		this.mChatWindow.setVisible(false);
 		this.mChatWindow.setZIndex(50);
 		this.mScene.attachChild(this.mChatWindow);
@@ -376,7 +384,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	// ===========================================================
 	private void showChatWindow(){
 		AlertDialog.Builder builder;
-		AlertDialog alertDialog;
+		final AlertDialog alertDialog;
 
 		Context context = OnlineOkeyClientActivity.this;
 		LayoutInflater inflater = (LayoutInflater) context.getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -384,7 +392,8 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				(ViewGroup) findViewById(R.id.chat_message_form_root));
 
 		final EditText chatMessageEditText = (EditText) layout.findViewById(R.id.chat_message_form_edittext_message);
-
+		chatMessageEditText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+		
 		builder = new AlertDialog.Builder(context);
 		builder.setTitle("New Message")
 		.setPositiveButton("Send", new DialogInterface.OnClickListener() {
@@ -401,7 +410,36 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		});
 		builder.setView(layout);
 		alertDialog = builder.create();
+		alertDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+		alertDialog.setOnShowListener(new OnShowListener() { // Force show soft keyboard 
+			@Override
+			public void onShow(DialogInterface dialog) {
+				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+			}
+		});
 		alertDialog.show();
+		
+		chatMessageEditText.setOnEditorActionListener(new OnEditorActionListener() {
+			@Override
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+				if (actionId == EditorInfo.IME_NULL && event.getAction() == KeyEvent.ACTION_DOWN) {
+					// Dissmiss keyboard
+					InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+					imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+					try {
+						Thread.sleep(200);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					// Simulate Send button click
+					alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick();
+					return true;
+				}
+				return false;
+			}
+		});
+		
 	}
 
 	private void toggleMessagesWindow() {
@@ -657,11 +695,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 							.show();
 				}
 				Calendar calendar = Calendar.getInstance();
-		        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-		        int minute = calendar.get(Calendar.MINUTE);
-		        int second = calendar.get(Calendar.SECOND);
-		        
-		        String date = String.format("%02d:%02d:%02d", hour, minute, second);
+				int hour = calendar.get(Calendar.HOUR_OF_DAY);
+				int minute = calendar.get(Calendar.MINUTE);
+				int second = calendar.get(Calendar.SECOND);
+
+				String date = String.format("%02d:%02d:%02d", hour, minute, second);
 
 				mChatWindow.addMessage(date, mTableManager.getUserAt(pChatResponse.getPosition()).getUserName() + ": " + pChatResponse.getMessage());
 

@@ -54,6 +54,7 @@ public class ChatWindow extends Rectangle{
 	}
 	private void addMessage(final String pMessage){
 		final Text messageText = new Text(0, 0, mFont, pMessage, MAXIMUM_CHARACTERS_PER_LINE, new TextOptions(HorizontalAlign.LEFT), mVertexBufferObjectManager);
+		messageText.setAlpha(0.8f);
 		for(Text text : this.mChatMessages){
 			text.setPosition(text.getX(), text.getY() - messageText.getHeight());
 		}
