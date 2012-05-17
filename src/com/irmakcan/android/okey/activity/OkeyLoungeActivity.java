@@ -109,7 +109,9 @@ public class OkeyLoungeActivity extends Activity{
 	@Override
 	protected void onResume() {
 		super.onResume();
-		// if WebSocketProvider.getWebSocket().isConnected() TODO
+		if(!WebSocketProvider.getWebSocket().isConnected()){
+			this.finish(); // TODO test
+		}
 	}
 	
 	@Override
@@ -130,7 +132,7 @@ public class OkeyLoungeActivity extends Activity{
 			JSONObject json = new JSONObject().put("action", "refresh_list");
 			webSocket.send(json.toString());
 		} catch (Exception e) {
-			// TODO Handle
+			this.finish();
 			e.printStackTrace();
 		}
 	}
@@ -142,7 +144,7 @@ public class OkeyLoungeActivity extends Activity{
 			JSONObject json = new JSONObject().put("action", "create_room").put("room_name", pRoomName);
 			webSocket.send(json.toString());
 		} catch (Exception e) {
-			// TODO Handle
+			this.finish();
 			e.printStackTrace();
 		}
 	}
@@ -154,7 +156,7 @@ public class OkeyLoungeActivity extends Activity{
 			JSONObject json = new JSONObject().put("action", "join_room").put("room_name", pRoomName);
 			webSocket.send(json.toString());
 		} catch (Exception e) {
-			// TODO Handle
+			this.finish();
 			e.printStackTrace();
 		}
 	}
