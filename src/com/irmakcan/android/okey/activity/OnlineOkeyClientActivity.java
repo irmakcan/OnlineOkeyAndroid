@@ -352,7 +352,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 	@Override
 	public void onBackPressed() {
-		if(this.mDoubleBackToExitPressedOnce) {
+		if(this.mChatWindow.isOpen()){
+			this.mDoubleBackToExitPressedOnce = false;
+			toggleMessagesWindow();
+		}else if(this.mDoubleBackToExitPressedOnce) {
 			super.onBackPressed();
 			if(!this.mIsFinishing){ // TODO test
 				// Send user leave message
@@ -363,10 +366,10 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					e.printStackTrace();
 				}
 			}
-			return;
+		}else{
+			this.mDoubleBackToExitPressedOnce = true;
+			Toast.makeText(this, "Press again to exit room " + this.mGameInformation.getTableName(), Toast.LENGTH_SHORT).show();
 		}
-		this.mDoubleBackToExitPressedOnce = true;
-		Toast.makeText(this, "Press again to exit room " + this.mGameInformation.getTableName(), Toast.LENGTH_SHORT).show();
 	}
 	// ===========================================================
 	// Methods
