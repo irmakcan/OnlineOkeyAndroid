@@ -181,6 +181,7 @@ public class OkeyLoungeActivity extends Activity{
 			BaseResponse baseResponse = gson.fromJson(message.getText(), BaseResponse.class);
 			String status = baseResponse.getStatus();
 			if(status.equals("lounge_update")){ //{"status":"lounge_update","player_count":5,"list":[{"room_name":"room3","count":1}]}
+				gson = new GsonBuilder().registerTypeAdapter(Position.class, new ModelDeserializer.PositionDeserializer()).create();
 				final LoungeUpdateResponse loungeUpdate = gson.fromJson(message.getText(), LoungeUpdateResponse.class);
 				mHandler.post(new Runnable() {
 					@Override
