@@ -1,5 +1,6 @@
 package com.irmakcan.android.okey.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -16,10 +17,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ import com.irmakcan.android.okey.model.GameInformation;
 import com.irmakcan.android.okey.model.Player;
 import com.irmakcan.android.okey.model.Position;
 import com.irmakcan.android.okey.model.Room;
+import com.irmakcan.android.okey.model.RoomAdapter;
 import com.irmakcan.android.okey.model.User;
 import com.irmakcan.android.okey.websocket.WebSocketProvider;
 
@@ -49,19 +52,17 @@ public class OkeyLoungeActivity extends Activity{
 	// Constants
 	// ===========================================================
 	protected static final String LOG_TAG = "OkeyLoungeActivity";
-
-	private static final int ROOM_PER_COLUMN = 4;
-
 	// ===========================================================
 	// Fields
 	// ===========================================================
-
 	private Handler mHandler;
-	private TableLayout mRoomTableLayout;
+	private GridView mGridView;
 	private TextView mPlayerCountView;
 
 	private String mQueuedRoomName;
-
+	
+	private List<Room> mRoomList;
+	private RoomAdapter mRoomAdapter;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -80,7 +81,14 @@ public class OkeyLoungeActivity extends Activity{
 
 		mHandler = new Handler();
 
-		this.mRoomTableLayout = (TableLayout)findViewById(R.id.loungescreen_tables);
+//		this.mRoomTableLayout = (TableLayout)findViewById(R.id.loungescreen_tables);
+		this.mRoomList = new ArrayList<Room>();
+		
+		this.mGridView = (GridView)findViewById(R.id.loungescreen_tables_grid);
+		this.mRoomAdapter = new RoomAdapter(this, this.mRoomList);
+		this.mGridView.setAdapter(this.mRoomAdapter);
+		
+		this.mGridView.setOnItemClickListener(mJoinRoomAction);
 
 		Button refreshButton = (Button)findViewById(R.id.loungescreen_button_refresh);
 		refreshButton.setOnClickListener(mRefreshAction);
@@ -152,39 +160,10 @@ public class OkeyLoungeActivity extends Activity{
 	}
 
 	private void generateRoomList(List<Room> pRoomList){
-		this.mRoomTableLayout.removeAllViews();
-
-		final int rowCount = (pRoomList.size() / ROOM_PER_COLUMN) + 1;
-
-		for(int i=0;i < rowCount;i++){
-			int start = i*ROOM_PER_COLUMN;
-			int end = start + ROOM_PER_COLUMN;
-			if(end > pRoomList.size()){
-				end = pRoomList.size();
-			}
-			List<Room> roomSubList = pRoomList.subList(start, end);
-
-			TableRow tableRow = new TableRow(this);
-			for(final Room room : roomSubList){
-
-				Button b = new Button(this);
-				b.setText(room.getName());
-				b.setTextSize(18);
-				b.setPadding(6, 5, 15, 5);
-				b.setSingleLine(true);
-
-				b.setOnClickListener(new OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						sendJoinRoomRequest(room.getName());
-					}
-				});
-
-				tableRow.addView(b);
-			}
-			tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
-			this.mRoomTableLayout.addView(tableRow);
-		}
+		this.mRoomList.clear();
+		this.mRoomList.addAll(pRoomList);
+		this.mRoomAdapter.notifyDataSetChanged();
+		this.mGridView.invalidateViews();
 	}
 	// ===========================================================
 	// Inner and Anonymous Classes
@@ -281,5 +260,11 @@ public class OkeyLoungeActivity extends Activity{
 			alertDialog.show();
 		}
 	};
-
+	private OnItemClickListener mJoinRoomAction = new OnItemClickListener() {
+		@Override
+		public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
+			Room room = (Room) mRoomAdapter.getItem(position);
+			sendJoinRoomRequest(room.getName());
+		}
+	};
 }

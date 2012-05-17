@@ -1,5 +1,7 @@
 package com.irmakcan.android.okey.model;
 
+import java.util.List;
+
 import com.google.gson.annotations.SerializedName;
 
 public class Room {
@@ -12,6 +14,7 @@ public class Room {
 	// ===========================================================
 	@SerializedName("room_name") private String mName;
 	@SerializedName("count") private int mPlayerCount;
+	@SerializedName("users") private List<User> mUsers;
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -36,6 +39,12 @@ public class Room {
 
 	public void setName(String pName) {
 		this.mName = pName;
+	}
+	public List<User> getUsers() {
+		return mUsers;
+	}
+	public void setUsers(List<User> pUsers) {
+		this.mUsers = pUsers;
 	}
 	// ===========================================================
 	// Methods for/from SuperClass/Interfaces

@@ -46,7 +46,10 @@ public class CornerTileStackRectangle extends Rectangle {
 	// Methods
 	// ===========================================================
 	public TileSprite pop() {
-		final TileSprite tile = mTileStack.pop();
+		TileSprite tile = null;
+		if(this.mTileStack.size() > 0){
+			tile = mTileStack.pop();
+		}
 		return tile;
 	}
 	public void push(final TileSprite pTileSprite) {
