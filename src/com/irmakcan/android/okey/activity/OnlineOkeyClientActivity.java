@@ -206,7 +206,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		bitmapTextureAtlas.load();
 
 		// Load Fonts
-		this.mTileFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 48, true, Color.WHITE);
+		this.mTileFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 45, true, Color.WHITE);
 		this.mTileFont.load();
 
 		this.mUserAreaFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 20, true, Color.WHITE);

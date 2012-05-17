@@ -47,12 +47,18 @@ public class TileSprite extends Sprite {
 		
 		if(pTile.getValue() == 0){
 			Sprite jokerSprite = new Sprite(0, 0, pFakeJokerTextureRegion, pVertexBufferObjectManager);
+			jokerSprite.setScale(0.81f);
 			jokerSprite.setPosition((pTextureRegion.getWidth()/2)-(jokerSprite.getWidth()/2), 0);
 			this.attachChild(jokerSprite);
 		}else{
 			final Text centerText = new Text(0, 0, pFont, Integer.toString(pTile.getValue()), MAXIMUM_CHARACTERS, new TextOptions(HorizontalAlign.CENTER), pVertexBufferObjectManager);
 			centerText.setColor(pTile.getTileColor().getColor());
-			centerText.setPosition((pTextureRegion.getWidth()/2)-(centerText.getWidth()/2), 4); // TODO
+			centerText.setPosition((pTextureRegion.getWidth()/2)-(centerText.getWidth()/2), 1);
+			if(pTile.getValue() == 1){
+				centerText.setX(centerText.getX()-4);
+			}else if(pTile.getValue() == 11){
+				centerText.setX(centerText.getX()-2);
+			}
 			this.attachChild(centerText);
 		}
 
