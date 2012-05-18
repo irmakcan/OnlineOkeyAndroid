@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.andengine.entity.primitive.Rectangle;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
@@ -15,7 +16,7 @@ public class Board extends Rectangle {
 	// ===========================================================
 	// Constants
 	// ===========================================================
-	public static final int FRAGMENT_PER_LANE = 12;
+	public static final int FRAGMENT_PER_LANE = 13;
 	private static final String LOG_TAG = "Board";
 	// ===========================================================
 	// Fields
@@ -28,8 +29,8 @@ public class Board extends Rectangle {
 	// ===========================================================
 	// Constructors
 	// ===========================================================
-	public Board(float pX, float pY, ITextureRegion pBoardFragmentTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
-		super(pX, pY, FRAGMENT_PER_LANE*Constants.FRAGMENT_WIDTH, 2*Constants.FRAGMENT_HEIGHT ,pVertexBufferObjectManager);
+	public Board(float pX, float pY, ITextureRegion pBoardFragmentTextureRegion, ITextureRegion pBoardSideTextureRegion, VertexBufferObjectManager pVertexBufferObjectManager) {
+		super(pX, pY, FRAGMENT_PER_LANE*Constants.FRAGMENT_WIDTH, 2*Constants.FRAGMENT_HEIGHT, pVertexBufferObjectManager);
 		final float posY1 = 0;
 		final float posY2 = posY1 + Constants.FRAGMENT_HEIGHT;
 		float posX = 0;
@@ -47,6 +48,11 @@ public class Board extends Rectangle {
 		}
 		this.mWidth = posX;
 		this.mHeight = posY2 + Constants.FRAGMENT_HEIGHT;
+		
+		pBoardSideTextureRegion.setTextureWidth(22f);
+		// Sides
+		this.attachChild(new Sprite(-pBoardSideTextureRegion.getWidth(), 0, pBoardSideTextureRegion.getWidth(), this.mHeight, pBoardSideTextureRegion, pVertexBufferObjectManager));
+		this.attachChild(new Sprite(this.mWidth, 0, pBoardSideTextureRegion.getWidth(), this.mHeight, pBoardSideTextureRegion, pVertexBufferObjectManager));
 	}
 	// ===========================================================
 	// Getter & Setter

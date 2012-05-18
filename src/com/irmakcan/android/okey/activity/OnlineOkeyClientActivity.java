@@ -125,6 +125,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private ITextureRegion mTileTextureRegion;
 	private ITextureRegion mTileBackTextureRegion;
 	private ITextureRegion mBoardWoodTextureRegion;
+	private ITextureRegion mBoardDarkWoodTextureRegion;
 	private ITextureRegion mFakeJokerTextureRegion;
 
 	private Font mTileFont;
@@ -206,6 +207,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		this.mBoardWoodTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "board_wood.png", 0, 0);
 		bitmapTextureAtlas.load();
 
+		// Board Sides
+		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), 32, 144, TextureOptions.BILINEAR);
+		this.mBoardDarkWoodTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "dark_wood.png", 0, 0);
+		bitmapTextureAtlas.load();
+
 		// Fake joker
 		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), FAKE_JOKER_WIDTH, FAKE_JOKER_HEIGHT, TextureOptions.BILINEAR);
 		this.mFakeJokerTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "fake_joker.png", 0, 0);
@@ -241,7 +247,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 
 		// Create board
-		this.mBoard = new Board(0, 0, mBoardWoodTextureRegion, this.getVertexBufferObjectManager());
+		this.mBoard = new Board(0, 0, mBoardWoodTextureRegion, mBoardDarkWoodTextureRegion, this.getVertexBufferObjectManager());
 		mBoard.setPosition((CAMERA_WIDTH/2)-(mBoard.getWidth()/2), CAMERA_HEIGHT-mBoard.getHeight());
 		mScene.attachChild(mBoard);
 
@@ -649,7 +655,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 					popupScene.attachChild(translucentBackground);
 
 					// Create new board
-					Board board = new Board(0, 0, mBoardWoodTextureRegion, getVertexBufferObjectManager());
+					Board board = new Board(0, 0, mBoardWoodTextureRegion, mBoardDarkWoodTextureRegion, getVertexBufferObjectManager());
 					board.setPosition((CAMERA_WIDTH/2)-(board.getWidth()/2), (CAMERA_HEIGHT/2)-(board.getHeight()/2));
 					popupScene.attachChild(board);
 					int location = 0;
