@@ -9,26 +9,26 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnShowListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.TextView.OnEditorActionListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -64,9 +64,10 @@ public class OkeyLoungeActivity extends Activity{
 	private Handler mHandler;
 	private GridView mGridView;
 	private TextView mPlayerCountView;
+	private TextView mNoRoomInfo;
 
 	private String mQueuedRoomName;
-	
+
 	private List<Room> mRoomList;
 	private RoomAdapter mRoomAdapter;
 	// ===========================================================
@@ -87,13 +88,13 @@ public class OkeyLoungeActivity extends Activity{
 
 		mHandler = new Handler();
 
-//		this.mRoomTableLayout = (TableLayout)findViewById(R.id.loungescreen_tables);
+		//		this.mRoomTableLayout = (TableLayout)findViewById(R.id.loungescreen_tables);
 		this.mRoomList = new ArrayList<Room>();
-		
+
 		this.mGridView = (GridView)findViewById(R.id.loungescreen_tables_grid);
 		this.mRoomAdapter = new RoomAdapter(this, this.mRoomList);
 		this.mGridView.setAdapter(this.mRoomAdapter);
-		
+
 		this.mGridView.setOnItemClickListener(mJoinRoomAction);
 
 		Button refreshButton = (Button)findViewById(R.id.loungescreen_button_refresh);
@@ -101,6 +102,7 @@ public class OkeyLoungeActivity extends Activity{
 		Button createButton = (Button)findViewById(R.id.loungescreen_button_create);
 		createButton.setOnClickListener(mCreateAction);
 		this.mPlayerCountView = (TextView)findViewById(R.id.loungescreen_textview_player_count);
+		this.mNoRoomInfo = (TextView)findViewById(R.id.loungescreen_textview_noroom_info);
 
 	}
 
@@ -111,7 +113,7 @@ public class OkeyLoungeActivity extends Activity{
 		webSocket.setEventHandler(mWebSocketEventHandler);
 		sendRefreshRequest();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -119,7 +121,7 @@ public class OkeyLoungeActivity extends Activity{
 			this.finish(); // TODO test
 		}
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
@@ -195,7 +197,14 @@ public class OkeyLoungeActivity extends Activity{
 					@Override
 					public void run() {
 						mPlayerCountView.setText("Online players: " + loungeUpdate.getPlayerCount());
-						generateRoomList(loungeUpdate.getRoomList());
+						if(loungeUpdate.getRoomList().size() <= 0){
+							mNoRoomInfo.setVisibility(TextView.VISIBLE);
+							mGridView.setVisibility(GridView.GONE);
+						}else{
+							mNoRoomInfo.setVisibility(TextView.GONE);
+							mGridView.setVisibility(GridView.VISIBLE);
+							generateRoomList(loungeUpdate.getRoomList());
+						}
 					}
 				});
 			}else if(status.equals("error")){
@@ -275,7 +284,7 @@ public class OkeyLoungeActivity extends Activity{
 				}
 			});
 			alertDialog.show();
-			
+
 			roomNameEditText.setOnEditorActionListener(new OnEditorActionListener() {
 				@Override
 				public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {

@@ -15,7 +15,18 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="1" >
+        android:layout_weight="1"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/loungescreen_textview_noroom_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="32dp"
+            android:text="@string/loungescreen_textview_noroom_info"
+            android:textSize="32dp"
+            android:visibility="gone" />
 
         <GridView
             android:id="@+id/loungescreen_tables_grid"

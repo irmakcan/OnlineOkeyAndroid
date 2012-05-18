@@ -26,6 +26,7 @@
 	<!-- Lounge Screen -->
 	<string name="loungescreen_button_create">Create Room</string>
 	<string name="loungescreen_button_refresh">Refresh List</string>
+	<string name="loungescreen_textview_noroom_info">No room is available</string>
 	<!-- Create Room From -->
 	<string name="room_create_form_edittext_hint_roomname">Room Name</string>
 	<string name="room_create_form_edittext_roomname">Room Name:</string>
@@ -38,5 +39,5 @@
 	<string name="game_menu_force_start">Start Game Now</string>
 	
 	<!-- Chat Message Form -->
-	<string name="chat_message_form_hint">Message ...</string>
+	<string name="chat_message_form_hint">Message &#8230;</string>
 </resources>
