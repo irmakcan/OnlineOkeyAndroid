@@ -49,7 +49,7 @@ public class Board extends Rectangle {
 		this.mWidth = posX;
 		this.mHeight = posY2 + Constants.FRAGMENT_HEIGHT;
 		
-		pBoardSideTextureRegion.setTextureWidth(22f);
+		pBoardSideTextureRegion.setTextureWidth(36f);
 		// Sides
 		this.attachChild(new Sprite(-pBoardSideTextureRegion.getWidth(), 0, pBoardSideTextureRegion.getWidth(), this.mHeight, pBoardSideTextureRegion, pVertexBufferObjectManager));
 		this.attachChild(new Sprite(this.mWidth, 0, pBoardSideTextureRegion.getWidth(), this.mHeight, pBoardSideTextureRegion, pVertexBufferObjectManager));
