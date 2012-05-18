@@ -123,6 +123,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 	private TableManager mTableManager;
 
 	private ITextureRegion mTileTextureRegion;
+	private ITextureRegion mTileBackTextureRegion;
 	private ITextureRegion mBoardWoodTextureRegion;
 	private ITextureRegion mFakeJokerTextureRegion;
 
@@ -193,6 +194,11 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		// Tile
 		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), TILE_WIDTH, TILE_HEIGHT, TextureOptions.BILINEAR);
 		this.mTileTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "tile.png", 0, 0);
+		bitmapTextureAtlas.load();
+
+		// Tile Back
+		bitmapTextureAtlas = new BitmapTextureAtlas(this.getTextureManager(), TILE_WIDTH, TILE_HEIGHT, TextureOptions.BILINEAR);
+		this.mTileBackTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(bitmapTextureAtlas, this, "tile_back.png", 0, 0);
 		bitmapTextureAtlas.load();
 
 		// Board
@@ -393,7 +399,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 
 		final EditText chatMessageEditText = (EditText) layout.findViewById(R.id.chat_message_form_edittext_message);
 		chatMessageEditText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
-		
+
 		builder = new AlertDialog.Builder(context);
 		builder.setTitle("New Message")
 		.setPositiveButton("Send", new DialogInterface.OnClickListener() {
@@ -419,7 +425,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 			}
 		});
 		alertDialog.show();
-		
+
 		chatMessageEditText.setOnEditorActionListener(new OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -439,7 +445,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				return false;
 			}
 		});
-		
+
 	}
 
 	private void toggleMessagesWindow() {
@@ -503,13 +509,13 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 				BlankTileSprite blankTileSprite = new BlankTileSprite(
 						CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
 						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
-						mTileTextureRegion, getVertexBufferObjectManager(), mTableManager);
+						mTileBackTextureRegion, getVertexBufferObjectManager(), mTableManager);
 				mScene.attachChild(blankTileSprite); // Background tile
 
 				blankTileSprite = new BlankTileSprite(
 						CAMERA_WIDTH/2 + Constants.TILE_PADDING_X, 
 						(CAMERA_HEIGHT - mBoard.getHeight())/2 - indicatorSprite.getHeight()/2, 
-						mTileTextureRegion, getVertexBufferObjectManager(), mTableManager);
+						mTileBackTextureRegion, getVertexBufferObjectManager(), mTableManager);
 				mScene.registerTouchArea(blankTileSprite);
 				blankTileSprite.enableTouch();
 				mScene.attachChild(blankTileSprite);
