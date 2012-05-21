@@ -19,10 +19,11 @@ public class UserInfoArea extends Rectangle {
 	// Constants
 	// ===========================================================
 	private static final int MAXIMUM_CHARACTERS = 12;
-	private static final Color TEXT_COLOR = new Color(0.5f, 0.1f, 0.4f);
+	private static final Color TEXT_COLOR = new Color(0.1f, 0.1f, 0.1f);
+	private static final Color ENABLED_TEXT_COLOR = new Color(0.78f, 0.78f, 0.78f);
 	private static final Color REMAINING_TEXT_COLOR = new Color(0.72f, 0.72f, 0.72f);
-	private static final Color BACKGROUND_COLOR = new Color(0.863f, 0.925f, 0.824f);
-	private static final Color ENABLED_BACKGROUND_COLOR = new Color(0.702f, 0.808f, 0.984f);
+	private static final Color BACKGROUND_COLOR = new Color(0.6f, 0.6f, 0.6f);
+	private static final Color ENABLED_BACKGROUND_COLOR = new Color(0.522f, 0.275f, 0.298f);
 	private static final float BACKGROUND_ALPHA = 0.5f;
 	private static final float ENABLED_BACKGROUND_ALPHA = 0.9f;
 	// ===========================================================
@@ -67,9 +68,11 @@ public class UserInfoArea extends Rectangle {
 		if(pEnabled){
 			this.setColor(ENABLED_BACKGROUND_COLOR);
 			this.setAlpha(ENABLED_BACKGROUND_ALPHA);
+			mUserNameText.setColor(ENABLED_TEXT_COLOR);
 		}else{
 			this.setColor(BACKGROUND_COLOR);
 			this.setAlpha(BACKGROUND_ALPHA);
+			mUserNameText.setColor(TEXT_COLOR);
 		}
 	}
 
