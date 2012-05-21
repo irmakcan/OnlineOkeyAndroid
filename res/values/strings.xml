@@ -4,6 +4,9 @@
     <string name="app_name">Online Okey</string>
 	<!-- App Name -->
 	<string name="brand_bar_app_name">Online Okey</string>
+	<!-- Main Screen -->
+	<string name="main_screen_login">Play</string>
+	<string name="main_screen_signup">Sign Up</string>
 	<!-- Login Screen  -->
     <string name="loginscreen_username">User Name:</string>
     <string name="loginscreen_password">Password:</string>
@@ -40,4 +43,5 @@
 	
 	<!-- Chat Message Form -->
 	<string name="chat_message_form_hint">Message &#8230;</string>
+	
 </resources>

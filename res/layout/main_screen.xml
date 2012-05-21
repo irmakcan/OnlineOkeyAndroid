@@ -40,19 +40,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" 
-            android:layout_gravity="bottom">
+            android:layout_gravity="bottom"
+            android:gravity="center_horizontal">
 
             <Button
                 android:id="@+id/mainscreen_login_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="login TODO" />
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:background="@drawable/button"
+                android:layout_marginRight="10dp"
+                android:text="@string/main_screen_login" 
+                android:gravity="center"/>
 
             <Button
                 android:id="@+id/mainscreen_signup_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="signup TODO" />
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:layout_marginLeft="10dp"
+                android:background="@drawable/button"
+                android:text="@string/main_screen_signup"
+                android:gravity="center" />
         </LinearLayout>
     </LinearLayout>
 
