@@ -11,7 +11,6 @@ import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
 
 import android.graphics.Point;
-import android.util.Log;
 
 import com.irmakcan.android.okey.model.User;
 
@@ -21,6 +20,7 @@ public class UserInfoArea extends Rectangle {
 	// ===========================================================
 	private static final int MAXIMUM_CHARACTERS = 12;
 	private static final Color TEXT_COLOR = new Color(0.5f, 0.1f, 0.4f);
+	private static final Color REMAINING_TEXT_COLOR = new Color(0.72f, 0.72f, 0.72f);
 	private static final Color BACKGROUND_COLOR = new Color(0.863f, 0.925f, 0.824f);
 	private static final Color ENABLED_BACKGROUND_COLOR = new Color(0.702f, 0.808f, 0.984f);
 	private static final float BACKGROUND_ALPHA = 0.5f;
@@ -44,7 +44,7 @@ public class UserInfoArea extends Rectangle {
 		this.attachChild(mUserNameText);
 
 		mRemainingTimeText = new Text(0, 0, pRemainingTimeFont, "  ", 2, pVertexBufferObjectManager);
-		mRemainingTimeText.setColor(TEXT_COLOR);
+		mRemainingTimeText.setColor(REMAINING_TEXT_COLOR);
 		Point p = pPosition.getTimerPoint();
 		mRemainingTimeText.setPosition(p.x - mRemainingTimeText.getWidth()/2 , p.y - mRemainingTimeText.getHeight()/2);
 		this.attachChild(mRemainingTimeText);
@@ -81,7 +81,6 @@ public class UserInfoArea extends Rectangle {
 			@Override
 			public void onTimePassed(TimerHandler pTimerHandler) {
 				mRemainingTime = mRemainingTime - pTimerHandler.getTimerSeconds();
-				Log.v("UserInfoArea", "Remaining Time = " + mRemainingTime);
 				mRemainingTimeText.setText(String.valueOf((int)mRemainingTime));
 				if(mRemainingTime <= 0){
 					UserInfoArea.this.unregisterUpdateHandler(mTimerHandler);
@@ -120,7 +119,7 @@ public class UserInfoArea extends Rectangle {
 		TOP(new Point(Constants.USER_AREA_WIDTH/2, Constants.USER_AREA_HEIGHT+Constants.TIMER_PADDING_Y)), 
 		BOTTOM(new Point(Constants.USER_AREA_WIDTH/2, -Constants.TIMER_PADDING_Y)), 
 		LEFT(new Point(Constants.USER_AREA_WIDTH+Constants.TIMER_PADDING_X, Constants.USER_AREA_HEIGHT/2)), 
-		RIGHT(new Point(-Constants.TIMER_PADDING_X, Constants.USER_AREA_HEIGHT/2));
+		RIGHT(new Point(-(Constants.TIMER_PADDING_X + Constants.TIMER_PADDING_X), Constants.USER_AREA_HEIGHT/2));
 		// ===========================================================
 		// Constants
 		// ===========================================================

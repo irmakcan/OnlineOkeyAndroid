@@ -224,7 +224,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		this.mUserAreaFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 20, true, Color.WHITE);
 		this.mUserAreaFont.load();
 
-		this.mRemainingTimeFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 16, true, Color.WHITE);
+		this.mRemainingTimeFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.NORMAL), 24, true, Color.WHITE);
 		this.mRemainingTimeFont.load();
 
 		// Load sound files
