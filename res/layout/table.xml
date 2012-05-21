@@ -13,6 +13,7 @@
         android:layout_marginBottom="5dp"
         android:singleLine="true"
         android:textAppearance="@style/LabelFont"
+        android:textColor="#ddcccccc"
         android:textSize="14dp"
         android:textStyle="bold" />
 

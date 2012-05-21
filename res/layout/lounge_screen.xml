@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FF337733"
+    android:background="#bb012919"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -15,7 +15,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:orientation="vertical" >
 
         <TextView
@@ -45,8 +45,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:orientation="horizontal" >
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="3dp"
+        android:background="@drawable/lounge_border"
+        android:orientation="horizontal"
+        android:paddingTop="6dp"
+        android:paddingLeft="1dp"
+        android:paddingRight="1dp"
+        android:paddingBottom="1dp"
+        >
 
         <!-- create & refresh button -->
 
@@ -74,5 +81,4 @@
             android:layout_gravity="right"
             android:text="@string/loungescreen_button_refresh" />
     </LinearLayout>
-
 </LinearLayout>

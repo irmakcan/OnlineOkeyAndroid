@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#bb012919"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -13,20 +14,46 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/border"
-        android:padding="10dp" >
+        android:layout_height="match_parent"
+        android:layout_margin="6dp"
+        android:background="@drawable/main_screen_border"
+        android:orientation="vertical"
+        android:padding="8dp" >
 
-        <Button
-            android:id="@+id/mainscreen_login_button"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="login TODO" />
-        <Button
-            android:id="@+id/mainscreen_signup_button"
-            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_weight="1" >
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="171dp"
+                android:layout_gravity="center_horizontal"
+                android:scaleType="fitCenter"
+                android:src="@drawable/okey_maskot" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="signup TODO" />
+            android:orientation="horizontal" 
+            android:layout_gravity="bottom">
+
+            <Button
+                android:id="@+id/mainscreen_login_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="login TODO" />
+
+            <Button
+                android:id="@+id/mainscreen_signup_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="signup TODO" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

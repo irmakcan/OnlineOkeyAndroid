@@ -243,7 +243,7 @@ public class OnlineOkeyClientActivity extends BaseGameActivity {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
 		mScene = new Scene();
-		mScene.setBackground(new Background(0.165f, 0.447f, 0.141f));
+		mScene.setBackground(new Background(0.004f, 0.275f, 0.098f));
 
 
 		// Create board
