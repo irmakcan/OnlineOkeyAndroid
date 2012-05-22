@@ -31,7 +31,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="171dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_gravity="center"
                 android:scaleType="fitCenter"
                 android:contentDescription="@string/main_screen_icon_description"
                 android:src="@drawable/okey_maskot" />
