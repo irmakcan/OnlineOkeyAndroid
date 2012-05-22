@@ -95,12 +95,19 @@ public class TableManager implements IPendingOperation {
 		return this.mTurn;
 	}
 	public void setTurn(Position pTurn) {
-		if(this.mTurn != null){ // Clear the previous player
+		if(pTurn.equals(this.mTurn)){ // Only restart the timer
+			this.mUserAreas.get(this.mTurn).stopTimer();
+			this.mUserAreas.get(pTurn).startTimer(this.mTimeoutInterval);
+		}else if(this.mTurn != null){ // Clear the previous player
 			this.mUserAreas.get(this.mTurn).setEnabled(false);
 			this.mUserAreas.get(this.mTurn).stopTimer();
+			this.mUserAreas.get(pTurn).setEnabled(true);
+			this.mUserAreas.get(pTurn).startTimer(this.mTimeoutInterval);
+		}else{
+			this.mUserAreas.get(pTurn).setEnabled(true);
+			this.mUserAreas.get(pTurn).startTimer(this.mTimeoutInterval);
 		}
-		this.mUserAreas.get(pTurn).setEnabled(true);
-		this.mUserAreas.get(pTurn).startTimer(this.mTimeoutInterval);
+
 		this.mTurn = pTurn;
 		// Set state
 		if(this.mTurn == getUserPosition()){

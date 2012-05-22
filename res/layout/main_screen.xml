@@ -22,7 +22,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_gravity="center"
             android:gravity="center"
             android:orientation="horizontal"
@@ -33,6 +33,7 @@
                 android:layout_height="171dp"
                 android:layout_gravity="center_horizontal"
                 android:scaleType="fitCenter"
+                android:contentDescription="@string/main_screen_icon_description"
                 android:src="@drawable/okey_maskot" />
         </LinearLayout>
 
